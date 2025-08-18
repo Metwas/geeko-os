@@ -1,0 +1,33 @@
+{
+       "name": "@geeko/os",
+       "version": "1.0.0",
+       "description": "[![License][license-image]][license-url] [![Downloads][downloads-image]][downloads-url]",
+       "main": "./dist/main.js",
+       "directories": {
+              "test": "test"
+       },
+       "scripts": {
+              "build": "rm -rf ./dist/ && tsc -p ./tsconfig.json",
+              "pub": "npm run build && npm publish --access=public",
+              "test": "echo \"Error: no test specified\" && exit 1"
+       },
+       "repository": {
+              "type": "git",
+              "url": "git+https://github.com/Metwas/geeko-os.git"
+       },
+       "author": "Metwas",
+       "license": "MIT",
+       "bugs": {
+              "url": "https://github.com/Metwas/geeko-os/issues"
+       },
+       "homepage": "https://github.com/Metwas/geeko-os#readme",
+       "devDependencies": {
+              "@types/node": "^24.3.0"
+       },
+       "dependencies": {
+              "@geeko/core": "^1.0.0",
+              "@geeko/log": "^1.0.0",
+              "@geeko/tasks": "^1.1.0",
+              "chrome-remote-interface": "^0.33.3"
+       }
+}
