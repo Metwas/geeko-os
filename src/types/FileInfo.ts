@@ -22,47 +22,25 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-import { FSWatcher, WatchOptions } from "node:fs";
-
-/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
 /**
- * @see FsDetector watch options
+ * Defines common file properties
  * 
  * @public
  */
-export interface FileWatchOptions extends WatchOptions
-{
+export type FileInfo = {
        /**
-        * Relative or absolute file or directory path
+        * Filename
         * 
         * @public
         * @type {String}
         */
-       path: string;
+       name: string;
 
        /**
-        * Root path, usually same as @see path
+        * File extension type
         * 
         * @public
         * @type {String}
         */
-       root?: string;
-
-       /**
-        * Directory branch level count
-        * 
-        * @public
-        * @type {Number}
-        */
-       level?: number;
+       extension: string;
 }
-
-/**
- * @see FSWatcher factory type
- * 
- * @public
- */
-export type Watcher<T extends FSWatcher> = ( src: string, fn: ( eventType: string, fileName: string ) => void ) => T;

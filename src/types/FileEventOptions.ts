@@ -22,47 +22,17 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-import { FSWatcher, WatchOptions } from "node:fs";
-
-/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
 /**
- * @see FsDetector watch options
+ * File change/delete/create event options @TODO move to @geeko/core package
  * 
  * @public
  */
-export interface FileWatchOptions extends WatchOptions
-{
-       /**
-        * Relative or absolute file or directory path
-        * 
-        * @public
-        * @type {String}
-        */
-       path: string;
-
-       /**
-        * Root path, usually same as @see path
-        * 
-        * @public
-        * @type {String}
-        */
-       root?: string;
-
-       /**
-        * Directory branch level count
-        * 
-        * @public
-        * @type {Number}
-        */
+export type FileEventOptions = {
+       type?: "directory" | "file";
+       relativePath?: string;
+       extension?: string;
+       name?: string;
        level?: number;
-}
-
-/**
- * @see FSWatcher factory type
- * 
- * @public
- */
-export type Watcher<T extends FSWatcher> = ( src: string, fn: ( eventType: string, fileName: string ) => void ) => T;
+       root?: string;
+       path?: string;
+};
