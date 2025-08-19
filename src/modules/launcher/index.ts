@@ -24,7 +24,7 @@
 
 export * from "./interfaces/chromium/chromium.launcher";
 export * from "../../types/ApplicationLaunchOptions";
-export * from "./global/application.constants";
+export * from "../../global/application.constants";
 export * from "./interfaces/ApplicationLaucher";
 export * from "./interfaces/ApplicationProcess";
 

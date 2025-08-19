@@ -26,7 +26,7 @@
 
 import { LINUX_OBJECT_SCAN_COMMAND, LINUX_OBJECT_WHERE_COMMAND } from "../constants/linux.constants";
 import { buildLinuxSearchOptions, buildSearchResponse } from "./scan.builder";
-import { splitNewline, replaceSpacesForNewline } from "./text.utilities";
+import { splitNewline, replaceSpacesForNewline } from "../../../tools/text.utilities";
 import { SystemSearchOptions } from "../interfaces/SystemSearchOptions";
 import { IOSProvider } from "../interfaces/os";
 import { CollectionMap } from "@geeko/core";

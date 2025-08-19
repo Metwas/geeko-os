@@ -24,7 +24,7 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { PROCESS_CLOSE_CHANNEL, PROCESS_ERROR_CHANNEL, PROCESS_MESSAGE_CHANNEL } from "../global/application.constants";
+import { PROCESS_CLOSE_CHANNEL, PROCESS_ERROR_CHANNEL, PROCESS_MESSAGE_CHANNEL } from "../../../global/application.constants";
 import { SystemProcessExecutable } from "../../../types/SystemProcessExecutable";
 import { ChildProcess, spawn } from "node:child_process";
 import { LogService } from "@geeko/log";

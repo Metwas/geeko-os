@@ -22,9 +22,4 @@
      SOFTWARE.
 */
 
-export * from "./modules/launcher";
-export * from "./modules/system";
-export * from "./modules/npm";
-export * from "./modules/io";
-export * from "./tools";
-export * from "./types";
+export * from "./io";

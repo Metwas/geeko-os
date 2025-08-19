@@ -22,11 +22,4 @@
      SOFTWARE.
 */
 
-export * from "./interfaces/FileWatchOptions";
 export * from "./services/FsDetector";
-export * from "./global/file.events";
-export * from "./tools/deleteFile";
-export * from "./tools/directory";
-export * from "./tools/path";
-export * from "./tools/file";
-export * from "./types";

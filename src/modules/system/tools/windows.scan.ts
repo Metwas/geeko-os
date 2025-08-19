@@ -27,8 +27,8 @@
 import { buildWindowsSearchOptions, buildSearchResponse } from "./scan.builder";
 import { WINDOWS_OBJECT_SCAN_COMMAND } from "../constants/windows.constants";
 import { SystemSearchOptions } from "../interfaces/SystemSearchOptions";
+import { splitNewline } from "../../../tools/text.utilities";
 import { ChildProcess, exec } from "node:child_process";
-import { splitNewline } from "./text.utilities";
 import { IOSProvider } from "../interfaces/os";
 import { CollectionMap } from "@geeko/core";
 

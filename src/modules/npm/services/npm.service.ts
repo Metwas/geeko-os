@@ -24,7 +24,7 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { NPM_CLI_COMMAND, NPM_ERROR_CHANNEL, NPM_MESSAGE_CHANNEL } from '../global/npm.events';
+import { NPM_CLI_COMMAND, NPM_ERROR_CHANNEL, NPM_MESSAGE_CHANNEL } from '../../../global/npm.events';
 import { createWriteStream, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { HTTPS_GET_ASYNC, HTTPS_GET_ASYNC_STREAM } from '../tools/http';
 import { dirname, isAbsolute, resolve } from 'node:path';

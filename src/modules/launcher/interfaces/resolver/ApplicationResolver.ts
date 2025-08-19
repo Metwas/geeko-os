@@ -24,17 +24,17 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { CoreOSProvider, SearchScope, SystemSearchOptions } from "../../../system";
 import { ApplicationSearchOptions } from "../../../../types/ApplicationSearchOptions";
-import { ApplicationSearchResult } from "../../../../types/ApplicationSearchResult";
-import { AsyncLock, KEY_RELEASE_EVENT, KeyEventAdaptor } from "@geeko/tasks";
-import { ApplicationPlatformMap } from "../../../../types/ApplicationPlatformMap";
 import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOptions";
-import { ApplicationPathResolver } from "./ApplicationPathResolver";
+import { CoreOSProvider, SearchScope, SystemSearchOptions } from "../../../system";
+import { ApplicationSearchResult } from "../../../../types/ApplicationSearchResult";
+import { ApplicationPlatformMap } from "../../../../types/ApplicationPlatformMap";
 import { SystemOperationOptions } from "../../../../types/SystemOperationOptions";
+import { AsyncLock, KEY_RELEASE_EVENT, KeyEventAdaptor } from "@geeko/tasks";
+import { ApplicationPathResolver } from "./ApplicationPathResolver";
 import { ApplicationName } from "../../../../types/ApplicationName";
-import { filename } from "../../../io/tools/file";
 import { existsSync, lstatSync } from "node:fs";
+import { filename } from "../../../../tools/io";
 import { CollectionMap } from "@geeko/core";
 import { LogService } from "@geeko/log";
 import { EventEmitter } from "tseep";

@@ -33,7 +33,7 @@ const chromium = new ChromiumLauncher(new LogService());
 
 chromium.launch({
        url: "https://www.youtube.com/embed/hOgVAYpHPCc?si=Zd1szX4noUjNjFqj&autoplay=1&mute=1",
-       exclusive: false,
+       exclusive: true,
        restartOnExit: true,
-       kiosk: false
+       kiosk: true
 });

@@ -27,7 +27,7 @@
 import { ApplicationPlatformMap } from "../../../../types/ApplicationPlatformMap";
 import { DEFAULT_CHROMIUM_URL, DEFAULT_FLAGS } from "./configuration/flags";
 import { CHROME_APPLICATION_MAP } from "./configuration/chromium.map";
-import { CHROME_ENV_TOKEN } from "../../global/application.constants";
+import { CHROME_ENV_TOKEN } from "../../../../global/application.constants";
 import { connectRemoteDebugger } from "../../tools/connect";
 import { ApplicationLauncher } from "../ApplicationLaucher";
 import { ApplicationProcess } from "../ApplicationProcess";

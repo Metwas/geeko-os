@@ -22,9 +22,40 @@
      SOFTWARE.
 */
 
-export * from "./modules/launcher";
-export * from "./modules/system";
-export * from "./modules/npm";
-export * from "./modules/io";
-export * from "./tools";
-export * from "./types";
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+import { WatchOptions } from "node:fs";
+
+/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+/**
+ * @see FsDetector watch options
+ * 
+ * @public
+ */
+export interface FileWatchOptions extends WatchOptions
+{
+       /**
+        * Relative or absolute file or directory path
+        * 
+        * @public
+        * @type {String}
+        */
+       path: string;
+
+       /**
+        * Root path, usually same as @see path
+        * 
+        * @public
+        * @type {String}
+        */
+       root?: string;
+
+       /**
+        * Directory branch level count
+        * 
+        * @public
+        * @type {Number}
+        */
+       level?: number;
+};
