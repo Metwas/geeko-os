@@ -24,15 +24,13 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { FILE_CHANGE_EVENT, FILE_CREATE_EVENT, FILE_DELETE_EVENT, FILE_UNWATCH_EVENT } from "../global/file.events";
+import { FILE_CHANGE_EVENT, FILE_CREATE_EVENT, FILE_DELETE_EVENT, FILE_UNWATCH_EVENT } from "../../../global/file.events";
 import { FSWatcher, Stats, existsSync, readdirSync, statSync, watch } from "node:fs";
-import { FileWatchOptions } from "../interfaces/FileWatchOptions";
-import { extension, filename } from "../tools/file";
-import { directory } from "../tools/directory";
-import { Watcher } from "../types/FileWatcher";
-import { EventEmitter } from "node:stream";
-import { Collection } from "@geeko/core";
+import { FileWatchOptions } from "../../../types/FileWatchOptions";
+import { extension, filename } from "../../../tools/io";
+import { Watcher } from "../../../types/FileWatcher";
 import { LogService } from "@geeko/log";
+import { EventEmitter } from "tseep";
 import { sep } from "node:path";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
@@ -48,47 +46,47 @@ export class FsDetector extends EventEmitter
         * Accepts a  @see Watcher factory function - otherwise uses the default @see fs.watch
         * 
         * @public
-        * @param {Watcher} watcher 
+        * @param {{ watcher?: Watcher<FSWatcher>, logger?: LogService }} options
         */
        public constructor( options?: { watcher?: Watcher<FSWatcher>, logger?: LogService } )
        {
               super();
 
-              this.watcher = options?.[ "watcher" ] || watch;
-              this.logger = options?.[ "logger" ];
+              this._watcher = options?.watcher ?? watch;
+              this._logger = options?.logger;
        }
 
        /**
         * @see FSWatcher collection map
         * 
-        * @protected
-        * @type {Collection<FSWatcher, String>} 
+        * @private
+        * @type {Map<FSWatcher, String>} 
         */
-       protected watchers: Collection<FSWatcher, string> = new Collection();
-
-       /**
-        * Debugger service
-        * 
-        * @protected
-        * @type {LogService}
-        */
-       protected logger: LogService = null;
+       private _watchers: Map<string, { watcher: FSWatcher, root: string }> = new Map();
 
        /**
         * Underlying @see Watcher factory function reference
         * 
-        * @protected
+        * @private
         * @type {Watcher}
         */
-       protected watcher: Watcher<FSWatcher> = null;
+       private _watcher: Watcher<FSWatcher> = null;
 
        /**
         * Initial root directory or file being observed
         * 
-        * @protected
+        * @private
         * @type {String}
         */
-       protected root: string = null;
+       private _root: string = null;
+
+       /**
+        * Log provider
+        * 
+        * @private
+        * @type {LogService}
+        */
+       private _logger: LogService = null;
 
        /**
         * Initializes the @see FSWatcher & emits file events based on the IO changes
@@ -102,17 +100,15 @@ export class FsDetector extends EventEmitter
        {
               const self: FsDetector = this;
 
-              const fileOrDirectory: string = options?.[ "path" ];
-              const recursive: boolean = options?.[ "recursive" ] === false ? false : true;
-
+              const fileOrDirectory: string = options?.path;
+              const recursive: boolean = options?.recursive === false ? false : true;
               const stats: Stats = statSync( fileOrDirectory );
+              const level: number = options.level ?? 0;
+              let root: string = options.root;
 
               if ( stats.isDirectory() )
               {
-                     if ( !this.root )
-                     {
-                            this.root = fileOrDirectory;
-                     }
+                     root = root ?? fileOrDirectory;
 
                      /** Watch each individual file changes if specified - @see recursive */
                      const files: Array<string> = readdirSync( fileOrDirectory, { recursive } ) as Array<string>;
@@ -126,33 +122,50 @@ export class FsDetector extends EventEmitter
                                    const fileName: string = `${fileOrDirectory}${sep}${files[ index ]}`;
                                    const istats: Stats = statSync( fileName );
 
+                                   const isFile = istats.isFile();
+
                                    /** Skip if @see recursive & not of root if placed in another directory */
-                                   if ( istats.isFile() && this.isRootDirectory( directory( fileName ) ) === false && recursive === false )
+                                   if ( isFile || ( this.isRootDirectory( root, fileName ) && recursive === false ) )
                                    {
                                           continue;
                                    }
 
                                    this.watch( {
+                                          recursive: recursive,
+                                          level: level + 1,
                                           path: fileName,
-                                          recursive: recursive
+                                          root: fileName
                                    } );
                             }
                             catch ( error )
                             {
-                                   this.error( error );
+                                   this._logger?.error( typeof error === "string" ? error : error.message );
                             }
                      }
               }
 
-              if ( this.watchers.has( fileOrDirectory ) === false )
+              if ( this._watchers.has( fileOrDirectory ) === false )
               {
                      let lastChange: number = null;
 
-                     const watcher: FSWatcher = this.watcher( fileOrDirectory, ( eventType: string, fileName: string ) =>
+                     const type: string = stats.isFile() ? "file" : ( stats.isDirectory() ? "directory" : "" );
+
+                     self.emit( FILE_CREATE_EVENT, {
+                            name: filename( fileOrDirectory ),
+                            path: fileOrDirectory,
+                            size: stats.size,
+                            level: level,
+                            type: type,
+                            root: root
+                     } );
+
+                     const watcher: FSWatcher = this._watcher( fileOrDirectory, ( eventType: string, fileName: string ) =>
                      {
-                            if ( existsSync( fileOrDirectory ) )
+                            const fullName: string = `${fileOrDirectory}/${fileName}`;
+
+                            if ( existsSync( fullName ) )
                             {
-                                   const stats: Stats = statSync( fileOrDirectory );
+                                   const stats: Stats = statSync( fullName );
 
                                    if ( stats.isFile() )
                                    {
@@ -161,12 +174,13 @@ export class FsDetector extends EventEmitter
                                           if ( lastChange === null || modifiedAt > lastChange )
                                           {
                                                  self.emit( FILE_CHANGE_EVENT, {
-                                                        relativePath: this.getRelativePath( fileOrDirectory ),
-                                                        extension: extension( fileOrDirectory ),
-                                                        name: filename( fileOrDirectory ),
-                                                        path: fileOrDirectory,
-                                                        type: "file",
-                                                        stats: stats
+                                                        root: this.getAbsoluteRoot( fullName ),
+                                                        extension: extension( fullName ),
+                                                        name: filename( fullName ),
+                                                        size: stats.size,
+                                                        path: fullName,
+                                                        level: level,
+                                                        type: "file"
                                                  } );
                                           }
 
@@ -174,22 +188,25 @@ export class FsDetector extends EventEmitter
                                    }
                                    else if ( stats.isDirectory() )
                                    {
+                                          root = this.getAbsoluteRoot( fullName );
+
                                           /** Assume directory is new */
-                                          if ( self.watchers.has( fileOrDirectory ) === false )
+                                          if ( self._watchers.has( fullName ) === false )
                                           {
                                                  self.emit( FILE_CREATE_EVENT, {
-                                                        relativePath: this.getRelativePath( fileOrDirectory ),
-                                                        name: filename( fileOrDirectory ),
-                                                        path: fileOrDirectory,
+                                                        name: filename( fullName ),
                                                         type: "directory",
-                                                        stats: stats
+                                                        size: stats.size,
+                                                        path: fullName,
+                                                        level: level,
+                                                        root: root
                                                  } );
                                           }
 
                                           /** Otherwise check for any newly added files if @see recursive is set  */
-                                          if ( this.isRootDirectory( fileOrDirectory ) || recursive === true )
+                                          if ( recursive === true )
                                           {
-                                                 const files: Array<string> = readdirSync( fileOrDirectory, { recursive } ) as Array<string>;
+                                                 const files: Array<string> = readdirSync( fullName, { recursive } ) as Array<string>;
                                                  const length: number = files.length;
                                                  let index: number = 0;
 
@@ -197,29 +214,35 @@ export class FsDetector extends EventEmitter
                                                  {
                                                         try
                                                         {
-                                                               const file: string = `${fileOrDirectory}${sep}${files[ index ]}`;
+                                                               const file: string = `${fullName}${sep}${files[ index ]}`;
                                                                /** Add to watch list if not already added */
-                                                               if ( self.watchers.has( file ) === false )
+                                                               if ( self._watchers.has( file ) === false )
                                                                {
-                                                                      self.watch( {
-                                                                             path: file,
-                                                                             recursive: recursive,
-                                                                      } );
+                                                                      const stats: Stats = statSync( file );
 
-                                                                      const stats: Stats = statSync( file )
+                                                                      if ( stats.isDirectory() )
+                                                                      {
+                                                                             self.watch( {
+                                                                                    recursive: recursive,
+                                                                                    root: root,
+                                                                                    path: file
+                                                                             } );
+                                                                      }
 
                                                                       self.emit( FILE_CREATE_EVENT, {
-                                                                             relativePath: this.getRelativePath( fileOrDirectory ),
                                                                              type: stats.isDirectory() ? "directory" : "file",
                                                                              extension: extension( file ),
                                                                              name: filename( file ),
+                                                                             size: stats.size,
+                                                                             level: level,
                                                                              path: file,
+                                                                             root: root
                                                                       } );
                                                                }
                                                         }
                                                         catch ( error )
                                                         {
-                                                               this.error( error );
+                                                               this._logger?.error( typeof error === "string" ? error : error.message );
                                                         }
                                                  }
                                           }
@@ -228,26 +251,27 @@ export class FsDetector extends EventEmitter
                             else
                             {
                                    /** File or directory removed, therefore remove from watch list */
-                                   self.unwatch( fileOrDirectory );
+                                   self.unwatch( fullName );
                                    self.emit( FILE_DELETE_EVENT, {
-                                          relativePath: this.getRelativePath( fileOrDirectory ),
                                           type: stats.isDirectory() ? "directory" : "file",
-                                          extension: extension( fileOrDirectory ),
-                                          name: filename( fileOrDirectory ),
-                                          path: fileOrDirectory,
+                                          extension: extension( fullName ),
+                                          name: filename( fullName ),
+                                          size: stats.size,
+                                          path: fullName,
+                                          level: level
                                    } );
                             }
                      } );
 
                      watcher.on( "error", ( error: Error ) =>
                      {
+                            self._logger?.error( typeof error === "string" ? error : error?.message );
                             /** @see unwatch file/folder if an error occured */
                             self.unwatch( fileOrDirectory );
-                            self.error( error );
                      } );
 
                      /** Add watcher to @see Collection */
-                     this.watchers.add( fileOrDirectory, watcher );
+                     this._watchers.set( fileOrDirectory, { watcher, root } );
               }
        }
 
@@ -259,12 +283,13 @@ export class FsDetector extends EventEmitter
         */
        public unwatch( path: string ): void
        {
-              if ( this.watchers.has( path ) === true )
+              if ( this._watchers.has( path ) === true )
               {
-                     const watcher: FSWatcher = this.watchers.get( path );
+                     const { watcher, root } = this._watchers.get( path );
+
                      watcher.close();
                      /** Finally remove from watch list */
-                     this.watchers.delete( path );
+                     this._watchers.delete( path );
               }
 
               this.emit( FILE_UNWATCH_EVENT, {
@@ -279,9 +304,26 @@ export class FsDetector extends EventEmitter
         * @param {String} path 
         * @returns {Boolean}
         */
-       protected isRootDirectory( path: string ): boolean
+       protected isRootDirectory( root: string, path: string ): boolean
        {
-              return ( this.root === path );
+              return ( root === path );
+       }
+
+       /**
+        * Gets the absolute root from a given path, relative to the @see this._root
+        * 
+        * @protected
+        * @param {String} path
+        * @returns {String} 
+        */
+       protected getAbsoluteRoot( path: string ): string
+       {
+              if ( this._watchers.has( path ) === true )
+              {
+                     return this._watchers.get( path )?.root;
+              }
+
+              return void 0;
        }
 
        /**
@@ -293,25 +335,11 @@ export class FsDetector extends EventEmitter
         */
        protected getRelativePath( path: string ): string
        {
-              if ( this.root )
+              if ( this._root )
               {
-                     return path.replace( this.root, "" ).replace( sep, "" );
+                     return path.replace( this._root, "" ).replace( sep, "" );
               }
 
               return "";
-       }
-
-       /**
-        * Error debug helper function
-        * 
-        * @protected
-        * @param {Error} error 
-        */
-       protected error( error: Error )
-       {
-              if ( this.logger )
-              {
-                     this.logger.error( error.message );
-              }
        }
 }
