@@ -24,7 +24,7 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { FSWatcher, WatchOptions } from "node:fs";
+import { WatchOptions } from "node:fs";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
@@ -59,10 +59,3 @@ export interface FileWatchOptions extends WatchOptions
         */
        level?: number;
 }
-
-/**
- * @see FSWatcher factory type
- * 
- * @public
- */
-export type Watcher<T extends FSWatcher> = ( src: string, fn: ( eventType: string, fileName: string ) => void ) => T;

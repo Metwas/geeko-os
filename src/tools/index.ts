@@ -22,4 +22,5 @@
      SOFTWARE.
 */
 
+export * from "./text.utilities";
 export * from "./io";
