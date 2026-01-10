@@ -24,13 +24,13 @@
 
 /**
  * Application path search result type
- * 
+ *
  * @public
  */
 export type ApplicationSearchResult = {
        /**
         * Application found result
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -38,17 +38,17 @@ export type ApplicationSearchResult = {
 
        /**
         * Application @see IOSProvider lookup table
-        * 
+        *
         * @public
         * @type {Object}
         */
-       application: any
+       application: any;
 
        /**
         * Application executable path
-        * 
+        *
         * @public
         * @type {String}
         */
        path: string;
-}
+};

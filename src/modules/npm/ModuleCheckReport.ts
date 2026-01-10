@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { NpmModule } from "./NpmModule";
 
@@ -30,14 +30,13 @@ import { NpmModule } from "./NpmModule";
 
 /**
  * Module installation final report
- * 
+ *
  * @public
  */
-export interface ModuleCheckReport
-{
+export interface ModuleCheckReport {
        /**
         * All succesfully installed @see NpmModule
-        * 
+        *
         * @public
         * @type {Array<NpmModule>}
         */
@@ -45,7 +44,7 @@ export interface ModuleCheckReport
 
        /**
         * All failed installed @see NpmModule
-        * 
+        *
         * @public
         * @type {Array<NpmModule>}
         */

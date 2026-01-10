@@ -24,7 +24,7 @@
 
 /**
  * @see ChildProcess message channel
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const PROCESS_MESSAGE_CHANNEL: string = "message";
 
 /**
  * @see ChildProcess error channel
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const PROCESS_ERROR_CHANNEL: string = "error";
 
 /**
  * @see ChildProcess close channel
- * 
+ *
  * @public
  * @type {String}
  */
@@ -48,7 +48,7 @@ export const PROCESS_CLOSE_CHANNEL: string = "close";
 
 /**
  * Chrome-based executable path stored within the enviroment variable
- * 
+ *
  * @public
  * @type {String}
  */
@@ -56,7 +56,7 @@ export const CHROME_ENV_TOKEN: string = "CHROME_PATH";
 
 /**
  * Default chromium remote-debugging port
- * 
+ *
  * @public
  * @type {Number}
  */

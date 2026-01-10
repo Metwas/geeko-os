@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOptions";
 
@@ -30,14 +30,13 @@ import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOpt
 
 /**
  * Chromium launch options
- * 
+ *
  * @public
  */
-export interface ChromeOptions extends ApplicationLaunchOptions
-{
+export interface ChromeOptions extends ApplicationLaunchOptions {
        /**
         * Application or Web URL
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -45,7 +44,7 @@ export interface ChromeOptions extends ApplicationLaunchOptions
 
        /**
         * Debugger port
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -53,7 +52,7 @@ export interface ChromeOptions extends ApplicationLaunchOptions
 
        /**
         * Debugging port to open, disabled if not specified
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -61,7 +60,7 @@ export interface ChromeOptions extends ApplicationLaunchOptions
 
        /**
         * User profile directory path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -69,9 +68,9 @@ export interface ChromeOptions extends ApplicationLaunchOptions
 
        /**
         * Initializes the chromium instance in a kiosk fullscreen/tablet mode
-        * 
+        *
         * @public
-        * @type {Boolean} 
+        * @type {Boolean}
         */
        kiosk?: boolean;
 }

@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { buildWindowsSearchOptions, buildSearchResponse } from "./scan.builder";
 import { WINDOWS_OBJECT_SCAN_COMMAND } from "../constants/windows.constants";
@@ -36,43 +36,52 @@ import { CollectionMap } from "@geeko/core";
 
 /**
  * Using the default 'where' command, this searches the current system for the specified file, executable or variable depending on the provided scope
- * 
+ *
  * @public
  * @param {IOSProvider} provider
- * @param {String} searchTerm 
- * @param {SystemSearchOptions} options 
+ * @param {String} searchTerm
+ * @param {SystemSearchOptions} options
  * @returns {Promise<Array<string>>}
  */
-export const whereIs = ( provider: IOSProvider, options: SystemSearchOptions ): Promise<CollectionMap<string>> =>
-{
-       return new Promise<CollectionMap<string>>( ( resolve, reject ) =>
-       {
-              let search: Array<string> = Array.isArray( options?.[ "name" ] ) ? options[ "name" ] : [ options?.[ "name" ] ];
-              const flags: Array<string> = buildWindowsSearchOptions( provider, search, options );
+export const whereIs = (
+       provider: IOSProvider,
+       options: SystemSearchOptions,
+): Promise<CollectionMap<string>> => {
+       return new Promise<CollectionMap<string>>((resolve, reject) => {
+              let search: Array<string> = Array.isArray(options?.["name"])
+                     ? options["name"]
+                     : [options?.["name"]];
+              const flags: Array<string> = buildWindowsSearchOptions(
+                     provider,
+                     search,
+                     options,
+              );
 
-              const childProcess: ChildProcess = exec( `${WINDOWS_OBJECT_SCAN_COMMAND} ${flags.join( " " )}`, ( error: Error, stdout: string, stderr: string ) =>
-              {
-                     if ( error || stderr )
-                     {
-                            resolve( null );
-                     }
-                     else
-                     {
-                            resolve( buildSearchResponse( splitNewline( stdout ), {
-                                   keys: search,
-                                   options: options
-                            } ) );
-                     }
-              } );
+              const childProcess: ChildProcess = exec(
+                     `${WINDOWS_OBJECT_SCAN_COMMAND} ${flags.join(" ")}`,
+                     (error: Error, stdout: string, stderr: string) => {
+                            if (error || stderr) {
+                                   resolve(null);
+                            } else {
+                                   resolve(
+                                          buildSearchResponse(
+                                                 splitNewline(stdout),
+                                                 {
+                                                        keys: search,
+                                                        options: options,
+                                                 },
+                                          ),
+                                   );
+                            }
+                     },
+              );
 
               // setup abort listener
-              if ( options.abort )
-              {
-                     options[ "abort" ].signal.onabort = function ()
-                     {
+              if (options.abort) {
+                     options["abort"].signal.onabort = function () {
                             // pass process for the system os to handle the termination properly
-                            provider.kill( childProcess )
+                            provider.kill(childProcess);
                      };
               }
-       } );
+       });
 };

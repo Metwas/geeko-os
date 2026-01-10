@@ -24,14 +24,13 @@
 
 /**
  * Network @see Transport options
- * 
+ *
  * @public
  */
-export interface NetworkTransportOptions
-{
+export interface NetworkTransportOptions {
        /**
         * Transport identifier
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -39,7 +38,7 @@ export interface NetworkTransportOptions
 
        /**
         * Transport protocol tag
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -47,7 +46,7 @@ export interface NetworkTransportOptions
 
        /**
         * Network endpoint/host address
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -55,7 +54,7 @@ export interface NetworkTransportOptions
 
        /**
         * Network port
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -64,14 +63,13 @@ export interface NetworkTransportOptions
 
 /**
  * Network interface options
- * 
+ *
  * @public
  */
-export interface NetworkInterfaceOptions
-{
+export interface NetworkInterfaceOptions {
        /**
         * Network interface mode
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -79,7 +77,7 @@ export interface NetworkInterfaceOptions
 
        /**
         * List of @see NetworkTransportOptions interfaces
-        * 
+        *
         * @public
         * @type {Array<NetworkTransportOptions>}
         */
@@ -87,15 +85,14 @@ export interface NetworkInterfaceOptions
 }
 
 /**
- * Network service interface 
- * 
+ * Network service interface
+ *
  * @public
  */
-export interface NetworkServiceOptions extends NetworkInterfaceOptions
-{
+export interface NetworkServiceOptions extends NetworkInterfaceOptions {
        /**
         * Network linked interfaces
-        * 
+        *
         * @public
         * @type {Array<NetworkServiceOptions>}
         */

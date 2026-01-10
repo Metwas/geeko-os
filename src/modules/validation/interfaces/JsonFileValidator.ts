@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { FileInfo } from "../../../types/FileInfo";
 import { FileValidator } from "./FileValidator";
@@ -31,29 +31,29 @@ import { FileValidator } from "./FileValidator";
 
 /**
  * Javascript file extension
- * 
+ *
  * @type {String}
  */
 const JSON_EXTENSION: string = "json";
 
 /**
  * @see JSON file extension validation provider
- * 
+ *
  * @public
  */
-export class JsonFileValidator extends FileValidator
-{
+export class JsonFileValidator extends FileValidator {
        /**
         * Validates the given @see FileInfo to ensure that the file type is of JSON type
-        * 
+        *
         * @public
-        * @param {FileInfo} file 
+        * @param {FileInfo} file
         */
-       public isValid( file: FileInfo ): boolean
-       {
-              if ( file?.[ "extension" ] )
-              {
-                     return file[ "extension" ].replace( ".", "" ) === JSON_EXTENSION;
+       public isValid(file: FileInfo): boolean {
+              if (file?.["extension"]) {
+                     return (
+                            file["extension"].replace(".", "") ===
+                            JSON_EXTENSION
+                     );
               }
 
               return false;

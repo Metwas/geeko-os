@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-export * from "./interfaces/SystemProcessOperation"
+export * from "./interfaces/SystemProcessOperation";
 export * from "./interfaces/SystemSearchOptions";
 export * from "../../types/LinuxDistribution";
 export * from "./constants/windows.constants";
@@ -32,4 +32,3 @@ export * from "./windows/WindowsProvider";
 export * from "./linux/LinuxProvider";
 export * from "./interfaces/os";
 export * from "./build";
-

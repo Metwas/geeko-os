@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { Platform } from "./Platform";
 
@@ -30,9 +30,9 @@ import { Platform } from "./Platform";
 
 /**
  * Application options to resolve an  application path configured on set platform
- * 
+ *
  * @public
  */
 export type ApplicationResolverOptions = {
-       platform: Platform
+       platform: Platform;
 };

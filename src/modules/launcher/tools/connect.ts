@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import * as remote from "chrome-remote-interface";
 import { sleep } from "@geeko/tasks";
@@ -33,33 +33,30 @@ const MAX_RETRIES: number = 5;
 
 /**
  * Attempts to make a connection to the chromium-remote-debugger API
- * 
+ *
  * @public
- * @param {{ host?: string, port: number }} options 
+ * @param {{ host?: string, port: number }} options
  * @returns {Promise<any>}
  */
-export const connectRemoteDebugger = async ( options: { host?: string, port: number } ): Promise<any> =>
-{
+export const connectRemoteDebugger = async (options: {
+       host?: string;
+       port: number;
+}): Promise<any> => {
        let retry: number = 0;
 
-       const connect = async function ( options )
-       {
+       const connect = async function (options) {
               let client: any = null;
 
-              while ( ++retry <= MAX_RETRIES || !client )
-              {
-                     try
-                     {
-                            client = await remote( options );
-                     }
-                     catch ( error )
-                     {
-                            await sleep( ( 1000 * Math.pow( retry, 2 ) ) );
+              while (++retry <= MAX_RETRIES || !client) {
+                     try {
+                            client = await remote(options);
+                     } catch (error) {
+                            await sleep(1000 * Math.pow(retry, 2));
                      }
               }
 
               return client;
        };
 
-       return await connect( options );
+       return await connect(options);
 };

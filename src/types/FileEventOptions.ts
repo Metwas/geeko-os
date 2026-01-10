@@ -24,7 +24,7 @@
 
 /**
  * File change/delete/create event options @TODO move to @geeko/core package
- * 
+ *
  * @public
  */
 export type FileEventOptions = {

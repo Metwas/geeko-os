@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { SystemModule } from "../../types/SystemModule";
 
@@ -30,14 +30,13 @@ import { SystemModule } from "../../types/SystemModule";
 
 /**
  * NPM package installation module interface
- * 
+ *
  * @public
  */
-export interface NpmModule extends SystemModule
-{
+export interface NpmModule extends SystemModule {
        /**
         * Install as development dependancy
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -45,7 +44,7 @@ export interface NpmModule extends SystemModule
 
        /**
         * Option to download the .tar NPM package rather than the default 'npm install' to the given path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -53,7 +52,7 @@ export interface NpmModule extends SystemModule
 
        /**
         * Install as global dependancy
-        * 
+        *
         * @public
         * @type {Boolean}
         */

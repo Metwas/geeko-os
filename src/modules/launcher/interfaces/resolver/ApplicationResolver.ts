@@ -22,11 +22,15 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationSearchOptions } from "../../../../types/ApplicationSearchOptions";
 import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOptions";
-import { CoreOSProvider, SearchScope, SystemSearchOptions } from "../../../system";
+import {
+       CoreOSProvider,
+       SearchScope,
+       SystemSearchOptions,
+} from "../../../system";
 import { ApplicationSearchResult } from "../../../../types/ApplicationSearchResult";
 import { ApplicationPlatformMap } from "../../../../types/ApplicationPlatformMap";
 import { SystemOperationOptions } from "../../../../types/SystemOperationOptions";
@@ -43,25 +47,25 @@ import { EventEmitter } from "tseep";
 
 /**
  * Application executable resolver
- * 
+ *
  * @public
  */
-export class ApplicationResolver
-{
+export class ApplicationResolver {
        /**
         * Expects an @see IOSProvider instance which will resolve application paths
-        * 
+        *
         * @public
-        * @param {CoreOSProvider} systemProvider 
+        * @param {CoreOSProvider} systemProvider
         * @param {LogService} logger
         */
-       public constructor( protected systemProvider: CoreOSProvider, private logger?: LogService )
-       {
-       }
+       public constructor(
+              protected systemProvider: CoreOSProvider,
+              private logger?: LogService,
+       ) {}
 
        /**
         * Option to only scan for valid Application paths returned by the @see IOSProvider
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -69,58 +73,60 @@ export class ApplicationResolver
 
        /**
         * Begins to scan & resolve the executable path based on the specified @see ApplicationLaunchOptions
-        * 
+        *
         * @public
-        * @param {ApplicationLaunchOptions} options 
+        * @param {ApplicationLaunchOptions} options
         * @returns {ApplicationSearchResult}
         */
-       public async resolve( options: ApplicationLaunchOptions ): Promise<ApplicationSearchResult>
-       {
-              if ( !options?.app )
-              {
+       public async resolve(
+              options: ApplicationLaunchOptions,
+       ): Promise<ApplicationSearchResult> {
+              if (!options?.app) {
                      return;
               }
 
               /** Validate provided @see executablePath if provided to ensure the application specified exists */
-              const hasExisting: boolean = this.isFile( options?.executablePath );
+              const hasExisting: boolean = this.isFile(options?.executablePath);
 
-              if ( hasExisting === true )
-              {
+              if (hasExisting === true) {
                      return {
-                            application: filename( options.executablePath ),
+                            application: filename(options.executablePath),
                             path: options.executablePath,
                             found: true,
                      };
               }
 
-              const name: ApplicationName | ApplicationPlatformMap = options.app;
+              const name: ApplicationName | ApplicationPlatformMap =
+                     options.app;
               const paths: Array<string> = this.getCommonPaths();
 
               // insert user specified directory
-              if ( typeof options.directory === "string" )
-              {
-                     paths.unshift( options.directory );
+              if (typeof options.directory === "string") {
+                     paths.unshift(options.directory);
               }
 
               // resolve if specified application map
-              if ( typeof name === "object" )
-              {
-                     return this.resolveMap( name as ApplicationPlatformMap, paths );
+              if (typeof name === "object") {
+                     return this.resolveMap(
+                            name as ApplicationPlatformMap,
+                            paths,
+                     );
               }
 
-              const applicationNames: Array<string> = Array.isArray( name ) ? name : [ name ];
+              const applicationNames: Array<string> = Array.isArray(name)
+                     ? name
+                     : [name];
               const length: number = applicationNames.length;
               let index: number = 0;
 
-              for ( ; index < length; index++ )
-              {
-                     const name: string = applicationNames[ index ];
-                     const searchResults: ApplicationSearchResult = await this.find( { name, paths } );
+              for (; index < length; index++) {
+                     const name: string = applicationNames[index];
+                     const searchResults: ApplicationSearchResult =
+                            await this.find({ name, paths });
 
                      // scan for the given application name against the list of common paths
-                     if ( searchResults.found === true )
-                     {
-                            // return first result 
+                     if (searchResults.found === true) {
+                            // return first result
                             return {
                                    path: searchResults.path,
                                    application: name,
@@ -132,15 +138,17 @@ export class ApplicationResolver
 
        /**
         * Scans for the given @see ApplicationPlatformMap on the given @see IOSProvider
-        * 
+        *
         * @protected
-        * @param {ApplicationPlatformMap} map 
-        * @param {Array<String>} paths 
+        * @param {ApplicationPlatformMap} map
+        * @param {Array<String>} paths
         * @returns {Promise<String>}
         */
-       protected async resolveMap( map: ApplicationPlatformMap, paths: Array<string> ): Promise<ApplicationSearchResult>
-       {
-              const keys: Array<string> = Object.keys( map || {} );
+       protected async resolveMap(
+              map: ApplicationPlatformMap,
+              paths: Array<string>,
+       ): Promise<ApplicationSearchResult> {
+              const keys: Array<string> = Object.keys(map || {});
               const length: number = keys.length;
               let index: number = 0;
 
@@ -154,136 +162,150 @@ export class ApplicationResolver
               const promises: Array<Promise<any>> = [];
               let highestWeight: number = -1;
 
-              for ( ; index < length; index++ )
-              {
-                     try
-                     {
-                            const key: string = keys[ index ];
-                            const application: any = map[ key ];
+              for (; index < length; index++) {
+                     try {
+                            const key: string = keys[index];
+                            const application: any = map[key];
 
-                            const name: string = ApplicationPathResolver.resolveFor( application, {
-                                   platform: this.systemProvider.platform()
-                            } );
+                            const name: string =
+                                   ApplicationPathResolver.resolveFor(
+                                          application,
+                                          {
+                                                 platform: this.systemProvider.platform(),
+                                          },
+                                   );
 
-                            if ( typeof name !== "string" )
-                            {
+                            if (typeof name !== "string") {
                                    continue;
                             }
 
-                            const weight: number = application[ "weight" ];
+                            const weight: number = application["weight"];
 
-                            if ( highestWeight < weight )
-                            {
+                            if (highestWeight < weight) {
                                    highestWeight = weight;
                             }
 
-                            const promise: Promise<ApplicationSearchResult> = new Promise( async ( resolve, _ ) =>
-                            {
-                                   const asyncLock: AsyncLock<any> = new AsyncLock<any>( [ new KeyEventAdaptor( asyncKey ) ] );
-                                   await asyncLock.promise();
+                            const promise: Promise<ApplicationSearchResult> =
+                                   new Promise(async (resolve, _) => {
+                                          const asyncLock: AsyncLock<any> =
+                                                 new AsyncLock<any>([
+                                                        new KeyEventAdaptor(
+                                                               asyncKey,
+                                                        ),
+                                                 ]);
+                                          await asyncLock.promise();
 
-                                   resolve( Object.assign( await this.find( { name, paths, abortOptions: { abort: abortController } } ), {
-                                          application: application,
-                                   } ) );
-                            } );
+                                          resolve(
+                                                 Object.assign(
+                                                        await this.find({
+                                                               name,
+                                                               paths,
+                                                               abortOptions: {
+                                                                      abort: abortController,
+                                                               },
+                                                        }),
+                                                        {
+                                                               application:
+                                                                      application,
+                                                        },
+                                                 ),
+                                          );
+                                   });
 
-                            promise.then( ( result: ApplicationSearchResult ) =>
-                            {
+                            promise.then((result: ApplicationSearchResult) => {
                                    const { application, found } = result;
 
-                                   if ( !found )
-                                   {
+                                   if (!found) {
                                           return;
                                    }
 
-                                   const weight: number = application[ "weight" ];
+                                   const weight: number = application["weight"];
 
-                                   if ( weight >= highestWeight )
-                                   {
+                                   if (weight >= highestWeight) {
                                           abortController.abort();
                                           // preferred application - resolve all other promises and cancel all file scan operations
                                           preferred = result;
+                                   } else {
+                                          available.push(result);
                                    }
-                                   else
-                                   {
-                                          available.push( result );
-                                   }
-                            } );
+                            });
 
-                            promises.push( promise );
-                     }
-                     catch ( error ) { }
+                            promises.push(promise);
+                     } catch (error) {}
               }
 
-              asyncKey.emit( KEY_RELEASE_EVENT );
+              asyncKey.emit(KEY_RELEASE_EVENT);
               /** Await all scan operations to complete */
-              await Promise.all( promises );
+              await Promise.all(promises);
 
-              if ( !preferred )
-              {
+              if (!preferred) {
                      // pick the next best application which is available
                      const length: number = available.length;
                      let index: number = 0;
 
-                     for ( ; index < length; index++ )
-                     {
-                            const _available: any = available[ index ];
+                     for (; index < length; index++) {
+                            const _available: any = available[index];
 
-                            if ( !_available )
-                            {
+                            if (!_available) {
                                    continue;
                             }
 
-                            if ( _available[ "application" ]?.[ "weight" ] > ( preferred?.[ "application" ]?.[ "weight" ] || 0 ) )
-                            {
+                            if (
+                                   _available["application"]?.["weight"] >
+                                   (preferred?.["application"]?.["weight"] || 0)
+                            ) {
                                    preferred = _available;
                             }
                      }
               }
 
-              return this.flattenApplicationResult( preferred );
+              return this.flattenApplicationResult(preferred);
        }
 
        /**
-        * Finds the specified application name & scoping possible directories @see paths 
-        * 
+        * Finds the specified application name & scoping possible directories @see paths
+        *
         * @protected
         * @param {ApplicationSearchOptions} options
         * @returns {Promise<ApplicationSearchResult>}
         */
-       protected async find( options: ApplicationSearchOptions ): Promise<ApplicationSearchResult>
-       {
+       protected async find(
+              options: ApplicationSearchOptions,
+       ): Promise<ApplicationSearchResult> {
               const result: ApplicationSearchResult = {
                      application: {},
                      found: false,
-                     path: ""
+                     path: "",
               };
 
-              let { name, paths, extension, abortOptions } = ( options ?? {} );
+              let { name, paths, extension, abortOptions } = options ?? {};
               let scope: SearchScope = "application";
 
-              if ( typeof name !== "string" )
-              {
+              if (typeof name !== "string") {
                      return result;
               }
 
-              paths = Array.isArray( paths ) ? paths : [ paths ];
+              paths = Array.isArray(paths) ? paths : [paths];
               const length: number = paths.length;
               let index: number = 0;
 
-              for ( ; index < length; index++ )
-              {
-                     const directory: string = paths[ index ];
+              for (; index < length; index++) {
+                     const directory: string = paths[index];
                      /** Begin a @see IOSProvider object scan */
-                     const results: CollectionMap<string> = await this.scan( { name, directory, extension, scope }, abortOptions );
-                     const executablePaths: Array<string> = results?.[ name ];
+                     const results: CollectionMap<string> = await this.scan(
+                            { name, directory, extension, scope },
+                            abortOptions,
+                     );
+                     const executablePaths: Array<string> = results?.[name];
 
-                     if ( Array.isArray( executablePaths ) && executablePaths.length > 0 )
-                     {
+                     if (
+                            Array.isArray(executablePaths) &&
+                            executablePaths.length > 0
+                     ) {
                             return {
                                    found: true,
                                    application: name,
-                                   path: executablePaths[ 0 ]
+                                   path: executablePaths[0],
                             };
                      }
               }
@@ -293,89 +315,94 @@ export class ApplicationResolver
 
        /**
         * Calls the @see IOSProvider scan command for the specified application name & possible directories
-        * 
+        *
         * @protected
-        * @param {SystemSearchOptions} searchOptions 
+        * @param {SystemSearchOptions} searchOptions
         * @param {SystemOperationOptions} abortOptions
         * @returns {Promise<CollectionMap<String>>}
         */
-       protected async scan( searchOptions: SystemSearchOptions, abortOptions?: SystemOperationOptions ): Promise<CollectionMap<string>>
-       {
+       protected async scan(
+              searchOptions: SystemSearchOptions,
+              abortOptions?: SystemOperationOptions,
+       ): Promise<CollectionMap<string>> {
               const { name, directory, extension, scope } = searchOptions;
 
-              this.dbg( `Scanning for: [${name}] in directory: [${directory}]` );
-              return await this.systemProvider.whereIs( {
-                     abort: abortOptions?.[ "abort" ],
+              this.dbg(`Scanning for: [${name}] in directory: [${directory}]`);
+              return await this.systemProvider.whereIs({
+                     abort: abortOptions?.["abort"],
                      extension: extension,
                      directory: directory,
                      scope: scope,
-                     name: name
-              } );
+                     name: name,
+              });
        }
 
        /**
         * Checks if the provided @see path is a valid file executable
-        * 
+        *
         * @protected
-        * @param {String} path 
+        * @param {String} path
         * @returns {Boolean}
         */
-       protected isFile( path: string ): boolean
-       {
-              try
-              {
+       protected isFile(path: string): boolean {
+              try {
                      /** Ensure @see path is of a file type */
-                     return ( existsSync( path ) === true && lstatSync( path ).isFile() === true );
-              }
-              catch ( error )
-              {
+                     return (
+                            existsSync(path) === true &&
+                            lstatSync(path).isFile() === true
+                     );
+              } catch (error) {
                      return false;
               }
        }
 
        /**
         * Flattens the @see ApplicationPlatformMap to a string name based on the current @see IOSProvider
-        * 
+        *
         * @protected
-        * @param {ApplicationSearchResult} application 
+        * @param {ApplicationSearchResult} application
         * @returns {ApplicationSearchResult}
         */
-       protected flattenApplicationResult( application: ApplicationSearchResult ): ApplicationSearchResult
-       {
+       protected flattenApplicationResult(
+              application: ApplicationSearchResult,
+       ): ApplicationSearchResult {
               /** Resolve application name for the given @see IOSProvider */
-              const name: string = ApplicationPathResolver.resolveFor( application, {
-                     platform: this.systemProvider.platform()
-              } );
+              const name: string = ApplicationPathResolver.resolveFor(
+                     application,
+                     {
+                            platform: this.systemProvider.platform(),
+                     },
+              );
 
               return {
                      application: name,
-                     found: application[ "found" ],
-                     path: application[ "path" ]
+                     found: application["found"],
+                     path: application["path"],
               };
        }
 
        /**
         * Gets the list of common paths defined by the @see IOSProvider
-        * 
+        *
         * @protected
         * @returns {Array<String>}
         */
-       protected getCommonPaths(): Array<string>
-       {
-              return [ ...this.systemProvider.applicationPaths(), this.systemProvider.homePath() ];
+       protected getCommonPaths(): Array<string> {
+              return [
+                     ...this.systemProvider.applicationPaths(),
+                     this.systemProvider.homePath(),
+              ];
        }
 
        /**
         * Local debug helper function
-        * 
+        *
         * @protected
-        * @param {Object | String} message 
+        * @param {Object | String} message
         */
-       protected dbg( message: any ): void
-       {
-              if ( this.logger )
-              {
-                     this.logger.debug( message );
+       protected dbg(message: any): void {
+              if (this.logger) {
+                     this.logger.debug(message);
               }
        }
 }

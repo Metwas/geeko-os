@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { NetworkServiceOptions } from "./NetworkInterface";
 
@@ -30,8 +30,8 @@ import { NetworkServiceOptions } from "./NetworkInterface";
 
 /**
  * Represents various @see IOSProvider & systems properties within a single interface
- * 
- * @public 
+ *
+ * @public
  */
 export type Application = {
        network?: NetworkServiceOptions;

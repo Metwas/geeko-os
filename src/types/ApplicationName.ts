@@ -24,9 +24,12 @@
 
 /**
  * Application name type
- * 
+ *
  * @public
  */
-export type ApplicationName = string | Array<string> | {
-       [ key: string ]: () => string;
-};
+export type ApplicationName =
+       | string
+       | Array<string>
+       | {
+                [key: string]: () => string;
+         };

@@ -24,14 +24,13 @@
 
 /**
  * System process operation interface
- * 
+ *
  * @public
  */
-export interface SystemProcessOperation
-{
+export interface SystemProcessOperation {
        /**
         * Process abort signal controller
-        * 
+        *
         * @public
         * @type {AbortController}
         */

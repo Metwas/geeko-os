@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationPlatformMap } from "./ApplicationPlatformMap";
 import { ApplicationName } from "./ApplicationName";
@@ -31,14 +31,13 @@ import { ApplicationName } from "./ApplicationName";
 
 /**
  * System process launch interface
- * 
+ *
  * @public
  */
-export interface ProcessLaunchOptions
-{
+export interface ProcessLaunchOptions {
        /**
         * Launch arguments
-        * 
+        *
         * @public
         * @type {Array<String>}
         */
@@ -46,7 +45,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Clears the cached location reference for the specified application
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -54,7 +53,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Shell execution path, e.g /bin/bash /bin/node or node
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -62,15 +61,15 @@ export interface ProcessLaunchOptions
 
        /**
         * Optional directory specification for the given @see app
-        * 
+        *
         * @public
         * @type {String}
         */
-       directory?: string
+       directory?: string;
 
        /**
         * Full executable path to the application instance/file
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -78,7 +77,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Option to restart the application on exit
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -86,7 +85,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Flag to indicate only one instance can be running at a time
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -94,7 +93,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Flag to run the executable on a seperate process channel
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -102,7 +101,7 @@ export interface ProcessLaunchOptions
 
        /**
         * Optional environments variables to be provided on launch
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -111,16 +110,15 @@ export interface ProcessLaunchOptions
 
 /**
  * Application launch options
- * 
+ *
  * @public
  */
-export interface ApplicationLaunchOptions extends ProcessLaunchOptions
-{
+export interface ApplicationLaunchOptions extends ProcessLaunchOptions {
        /**
         * Application identification
-        * 
+        *
         * @public
         * @type {ApplicationName | ApplicationPlatformMap}
         */
        app: ApplicationName | ApplicationPlatformMap;
-};
+}

@@ -24,8 +24,7 @@
 
 /**
  * Collection token identifier
- * 
+ *
  * @public
  */
 export type RepositoryToken = string;
-

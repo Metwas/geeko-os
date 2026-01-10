@@ -21,21 +21,24 @@
      OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
      SOFTWARE.
 */
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { SpawnOptionsWithoutStdio, SpawnOptionsWithStdioTuple } from "node:child_process";
+import {
+       SpawnOptionsWithoutStdio,
+       SpawnOptionsWithStdioTuple,
+} from "node:child_process";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
  * Process executable arguments specific to the current system, e.g Windows, Linux
- * 
+ *
  * @public
  */
 export type SystemProcessExecutable = {
        /**
         * File path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -43,7 +46,7 @@ export type SystemProcessExecutable = {
 
        /**
         * Executable path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -51,7 +54,7 @@ export type SystemProcessExecutable = {
 
        /**
         * Executable arguments
-        * 
+        *
         * @public
         * @type {Array<String>}
         */
@@ -59,9 +62,11 @@ export type SystemProcessExecutable = {
 
        /**
         * Process launch arguments
-        * 
+        *
         * @public
         * @type {SpawnOptionsWithStdioTuple | SpawnOptionsWithoutStdio}
         */
-       options?: SpawnOptionsWithStdioTuple<any, any, any> | SpawnOptionsWithoutStdio
-}
+       options?:
+              | SpawnOptionsWithStdioTuple<any, any, any>
+              | SpawnOptionsWithoutStdio;
+};

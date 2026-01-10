@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 const { ChromiumLauncher } = require("../../dist/main");
 const { LogService } = require("@geeko/log");
@@ -35,5 +35,5 @@ chromium.launch({
        url: "https://www.youtube.com/embed/hOgVAYpHPCc?si=Zd1szX4noUjNjFqj&autoplay=1&mute=1",
        exclusive: true,
        restartOnExit: true,
-       kiosk: true
+       kiosk: true,
 });

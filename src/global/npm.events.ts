@@ -24,7 +24,7 @@
 
 /**
  * Npm package installer close event
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const NPM_CLOSE_EVENT: string = "NPM_INSTALLER_CLOSE";
 
 /**
  * Npm package installer close event
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const NPM_ERROR_CHANNEL: string = "NPM_ERROR";
 
 /**
  * Npm package installer progress event
- * 
+ *
  * @public
  * @type {String}
  */
@@ -48,7 +48,7 @@ export const NPM_MESSAGE_CHANNEL: string = "NPM_MESSAGE";
 
 /**
  * Npm CLI name
- * 
+ *
  * @public
  * @type {String}
  */

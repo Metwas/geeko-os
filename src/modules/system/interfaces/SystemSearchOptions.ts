@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { SystemProcessOperation } from "./SystemProcessOperation";
 
@@ -30,22 +30,27 @@ import { SystemProcessOperation } from "./SystemProcessOperation";
 
 /**
  * Common search scopes
- * 
+ *
  * @public
  * @type {String}
  */
-export type SearchScope = "file" | "executable" | "env" | "directory" | "application" | "any";
+export type SearchScope =
+       | "file"
+       | "executable"
+       | "env"
+       | "directory"
+       | "application"
+       | "any";
 
 /**
  * System search options interface
- * 
+ *
  * @public
  */
-export interface SystemSearchOptions extends SystemProcessOperation
-{
+export interface SystemSearchOptions extends SystemProcessOperation {
        /**
         * Search term
-        * 
+        *
         * @public
         * @type {Array<String> | String}
         */
@@ -53,7 +58,7 @@ export interface SystemSearchOptions extends SystemProcessOperation
 
        /**
         * Search focus or scope @see SearchScope
-        * 
+        *
         * @public
         * @type {SearchScope}
         */
@@ -61,7 +66,7 @@ export interface SystemSearchOptions extends SystemProcessOperation
 
        /**
         * Search root directory
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -69,7 +74,7 @@ export interface SystemSearchOptions extends SystemProcessOperation
 
        /**
         * File extension to match search
-        * 
+        *
         * @public
         * @type {String}
         */

@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ClientRequest, IncomingMessage } from "node:http";
 import { WriteStream } from "node:fs";
@@ -32,65 +32,58 @@ import https from "node:https";
 
 /**
  * HTTPS get request async wrapper function
- * 
+ *
  * @public
- * @param {String} url 
+ * @param {String} url
  * @returns {Promise<string>}
  */
-export const HTTPS_GET_ASYNC = ( url: string ): Promise<string> =>
-{
-       return new Promise<string>( ( resolve, reject ) =>
-       {
+export const HTTPS_GET_ASYNC = (url: string): Promise<string> => {
+       return new Promise<string>((resolve, reject) => {
               let buffer: string = "";
 
-              https.get( url, ( response: IncomingMessage ) =>
-              {
-                     response.on( "data", ( chunk: string ) =>
-                     {
+              https.get(url, (response: IncomingMessage) => {
+                     response.on("data", (chunk: string) => {
                             buffer += chunk;
-                     } );
+                     });
 
-                     response.on( "end", () =>
-                     {
-                            resolve( buffer );
-                     } );
+                     response.on("end", () => {
+                            resolve(buffer);
+                     });
 
-                     response.on( "error", ( error: Error ) =>
-                     {
+                     response.on("error", (error: Error) => {
                             buffer = null;
-                            reject( error );
-                     } );
-              } );
-       } );
+                            reject(error);
+                     });
+              });
+       });
 };
-
 
 /**
  * HTTPS get request async wrapper function which pipes the response to the provided @see WriteStream
- * 
+ *
  * @public
  * @param {String} url
  * @param {WriteStream} stream
  * @returns {Promise<string>}
  */
-export const HTTPS_GET_ASYNC_STREAM = ( url: string, stream: WriteStream ): Promise<boolean> =>
-{
-       return new Promise<boolean>( ( resolve, reject ) =>
-       {
-              const request: ClientRequest = https.get( url, ( response: IncomingMessage ) =>
-              {
-                     response.pipe( stream );
+export const HTTPS_GET_ASYNC_STREAM = (
+       url: string,
+       stream: WriteStream,
+): Promise<boolean> => {
+       return new Promise<boolean>((resolve, reject) => {
+              const request: ClientRequest = https.get(
+                     url,
+                     (response: IncomingMessage) => {
+                            response.pipe(stream);
 
-                     stream.on( "finish", () =>
-                     {
-                            resolve( true );
-                     } );
-              } );
+                            stream.on("finish", () => {
+                                   resolve(true);
+                            });
+                     },
+              );
 
-              request.on( "error", ( error: Error ) =>
-              {
-                     reject( error );
-              } );
-       } );
+              request.on("error", (error: Error) => {
+                     reject(error);
+              });
+       });
 };
-

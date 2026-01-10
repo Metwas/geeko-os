@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationResolverOptions } from "../../../../types/ApplicationResolverOptions";
 import { DEFAULT_PLATFORM_NAME } from "../../tools/platform";
@@ -32,23 +32,25 @@ import { Platform } from "../../../../types/Platform";
 
 /**
  * Cross-platform application resolver class
- * 
+ *
  * @public
  */
-export class ApplicationPathResolver
-{
+export class ApplicationPathResolver {
        /**
         * Resolves the specified application @see String name from the given @see ApplicationResolverOptions
-        * 
+        *
         * @public
-        * @param {Object} map 
-        * @param {ApplicationResolverOptions} options 
+        * @param {Object} map
+        * @param {ApplicationResolverOptions} options
         * @returns {String}
         */
-       public static resolveFor( map: any, options: ApplicationResolverOptions ): string
-       {
-              const platformName: Platform = options?.[ "platform" ] ?? DEFAULT_PLATFORM_NAME;
+       public static resolveFor(
+              map: any,
+              options: ApplicationResolverOptions,
+       ): string {
+              const platformName: Platform =
+                     options?.["platform"] ?? DEFAULT_PLATFORM_NAME;
               /** get platform specific path for the given application @see string name */
-              return map[ platformName ];
+              return map[platformName];
        }
 }

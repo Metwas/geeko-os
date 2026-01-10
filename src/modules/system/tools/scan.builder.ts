@@ -22,9 +22,12 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { SearchScope, SystemSearchOptions } from "../interfaces/SystemSearchOptions";
+import {
+       SearchScope,
+       SystemSearchOptions,
+} from "../interfaces/SystemSearchOptions";
 import { WINDOWS_DEFAULT_ROOT } from "../constants/windows.constants";
 import { LINUX_DEFAULT_ROOT } from "../constants/linux.constants";
 import { Stats, constants, statSync } from "node:fs";
@@ -36,29 +39,36 @@ import { CollectionMap } from "@geeko/core";
 /**
  * Builds an array of executable flags ready for the Windows search command
  * @see WINDOWS_OBJECT_SCAN_COMMAND
- * 
+ *
  * @public
  * @param {IOSProvider} provider
- * @param {Array<string>} files 
- * @param {SystemSearchOptions} options 
+ * @param {Array<string>} files
+ * @param {SystemSearchOptions} options
  * @returns {Array<string>}
  */
-export const buildWindowsSearchOptions = ( provider: IOSProvider, files: Array<string>, options?: SystemSearchOptions ): Array<string> =>
-{
+export const buildWindowsSearchOptions = (
+       provider: IOSProvider,
+       files: Array<string>,
+       options?: SystemSearchOptions,
+): Array<string> => {
        let search: Array<string> = [];
        options = options || {};
 
-       let scope: SearchScope = options[ "scope" ] || "any";
-       let extension: string = options[ "extension" ] || "";
-       let directory: string = provider.resolvePath( ( options[ "directory" ] || WINDOWS_DEFAULT_ROOT ), false );
+       let scope: SearchScope = options["scope"] || "any";
+       let extension: string = options["extension"] || "";
+       let directory: string = provider.resolvePath(
+              options["directory"] || WINDOWS_DEFAULT_ROOT,
+              false,
+       );
 
        // remove final directory "/" if set
-       if ( directory && directory[ directory.length - 1 ] === "\\" )
-       {
-              directory = directory.substring( 0, directory.length - 1 );
+       if (directory && directory[directory.length - 1] === "\\") {
+              directory = directory.substring(0, directory.length - 1);
        }
 
-       search.push( `/R "${directory}"  ${mapFileExtensions( files, extension ).join( " " )}` );
+       search.push(
+              `/R "${directory}"  ${mapFileExtensions(files, extension).join(" ")}`,
+       );
 
        return search;
 };
@@ -66,34 +76,42 @@ export const buildWindowsSearchOptions = ( provider: IOSProvider, files: Array<s
 /**
  * Builds an array of executable flags ready for the Linux search command
  * @see LINUX_OBJECT_SCAN_COMMAND
- * 
+ *
  * @public
  * @param {IOSProvider} provider
- * @param {Array<string>} files 
- * @param {SystemSearchOptions} options 
+ * @param {Array<string>} files
+ * @param {SystemSearchOptions} options
  * @returns {Array<string>}
  */
-export const buildLinuxSearchOptions = ( provider: IOSProvider, files: Array<string>, options?: SystemSearchOptions ): Array<string> =>
-{
+export const buildLinuxSearchOptions = (
+       provider: IOSProvider,
+       files: Array<string>,
+       options?: SystemSearchOptions,
+): Array<string> => {
        let search: Array<string> = [];
        options = options || {};
 
-       let scope: SearchScope = options[ "scope" ] || "any";
-       let extension: string = options[ "extension" ] || "";
-       let directory: string = provider.resolvePath( ( options[ "directory" ] || LINUX_DEFAULT_ROOT ) );
+       let scope: SearchScope = options["scope"] || "any";
+       let extension: string = options["extension"] || "";
+       let directory: string = provider.resolvePath(
+              options["directory"] || LINUX_DEFAULT_ROOT,
+       );
 
-       switch ( scope )
-       {
+       switch (scope) {
               case "executable":
-                     search.push( `${directory} -name ${mapFileExtensions( files, extension || "exe" ).join( " " )}` );
+                     search.push(
+                            `${directory} -name ${mapFileExtensions(files, extension || "exe").join(" ")}`,
+                     );
                      break;
               case "application":
-                     search.push( `${mapFileExtensions( files, "" ).join( " " )}` );
+                     search.push(`${mapFileExtensions(files, "").join(" ")}`);
                      break;
               case "file":
               case "any":
               default:
-                     search.push( `${directory} -name  ${mapFileExtensions( files, extension || "*" ).join( " " )}` );
+                     search.push(
+                            `${directory} -name  ${mapFileExtensions(files, extension || "*").join(" ")}`,
+                     );
                      break;
        }
 
@@ -102,24 +120,27 @@ export const buildLinuxSearchOptions = ( provider: IOSProvider, files: Array<str
 
 /**
  * Helper for mapping a collection of file names with a specified extension
- * 
+ *
  * @public
- * @param {Array<String>} files 
- * @param {String} extension 
+ * @param {Array<String>} files
+ * @param {String} extension
  * @returns {Array<String>}
  */
-export const mapFileExtensions = ( files: Array<string>, extension: string ): Array<string> =>
-{
-       const length: number = Array.isArray( files ) ? files.length : 0;
+export const mapFileExtensions = (
+       files: Array<string>,
+       extension: string,
+): Array<string> => {
+       const length: number = Array.isArray(files) ? files.length : 0;
        let index: number = 0;
 
-       extension = extension.replace( ".", "" );
+       extension = extension.replace(".", "");
 
        let mapped: Array<string> = [];
 
-       for ( ; index < length; index++ )
-       {
-              mapped.push( `${files[ index ] || "*"}${extension ? "." + extension : ""}` );
+       for (; index < length; index++) {
+              mapped.push(
+                     `${files[index] || "*"}${extension ? "." + extension : ""}`,
+              );
        }
 
        return mapped;
@@ -127,7 +148,7 @@ export const mapFileExtensions = ( files: Array<string>, extension: string ): Ar
 
 /**
  * Common system executable @see RegExp
- * 
+ *
  * @private
  * @type {RegExp}
  */
@@ -135,53 +156,51 @@ const EXEC_REGEX: RegExp = /\.(exe|bat|cmd|com|ps1|sh|bin|run|appimage)$/i;
 
 /**
  * Checks if the specified path is an system executable file
- * 
+ *
  * @public
- * @param {String} path 
+ * @param {String} path
  * @returns {Boolean}
  */
-export const isExecutable = ( path: string ): boolean =>
-{
-       try
-       {
-              const match: Array<any> | null = path.match( EXEC_REGEX );
+export const isExecutable = (path: string): boolean => {
+       try {
+              const match: Array<any> | null = path.match(EXEC_REGEX);
 
-              if ( !Array.isArray( match ) || !match[ 0 ] )
-              {
-                     const stats: Stats = statSync( path );
+              if (!Array.isArray(match) || !match[0]) {
+                     const stats: Stats = statSync(path);
                      /** Check if file is executable if no extension was detected */
-                     if ( stats.isFile() && ( stats.mode & ( constants.S_IXUSR | constants.S_IXGRP | constants.S_IXOTH ) ) !== 0 )
-                     {
+                     if (
+                            stats.isFile() &&
+                            (stats.mode &
+                                   (constants.S_IXUSR |
+                                          constants.S_IXGRP |
+                                          constants.S_IXOTH)) !==
+                                   0
+                     ) {
                             return true;
                      }
 
                      return false;
               }
-       }
-       catch ( error )
-       {
+       } catch (error) {
               return false;
        }
 };
 
 /**
  * Validates the provided line based on the file @see SearchScope
- * 
+ *
  * @private
- * @param {String} line 
- * @param {SearchScope} scope 
+ * @param {String} line
+ * @param {SearchScope} scope
  * @returns {Boolean}
  */
-const isValidPath = ( line: string, scope: SearchScope ): boolean =>
-{
-       if ( typeof line !== "string" || line.indexOf( ":" ) > -1 )
-       {
+const isValidPath = (line: string, scope: SearchScope): boolean => {
+       if (typeof line !== "string" || line.indexOf(":") > -1) {
               return false;
        }
 
-       if ( scope === "application" )
-       {
-              return isExecutable( line );
+       if (scope === "application") {
+              return isExecutable(line);
        }
 
        return true;
@@ -189,24 +208,25 @@ const isValidPath = ( line: string, scope: SearchScope ): boolean =>
 
 /**
  * Gets the associated file key based on the given line
- * 
+ *
  * @private
- * @param {String} line 
- * @param {Array<String>} keys 
- * @param {SearchScope} scope 
+ * @param {String} line
+ * @param {Array<String>} keys
+ * @param {SearchScope} scope
  * @returns {String}
  */
-const getOccociatedFile = ( line: string, keys: Array<string>, scope: SearchScope ): string =>
-{
+const getOccociatedFile = (
+       line: string,
+       keys: Array<string>,
+       scope: SearchScope,
+): string => {
        const length: number = keys.length;
        let index: number = 0;
 
-       for ( ; index < length; index++ )
-       {
-              const key: string = keys[ index ];
+       for (; index < length; index++) {
+              const key: string = keys[index];
 
-              if ( key && line.indexOf( key ) > -1 )
-              {
+              if (key && line.indexOf(key) > -1) {
                      return key;
               }
        }
@@ -215,16 +235,18 @@ const getOccociatedFile = ( line: string, keys: Array<string>, scope: SearchScop
 };
 
 /**
- * Builds the search response for the filtered object outputs 
- * 
+ * Builds the search response for the filtered object outputs
+ *
  * @public
- * @param {Array<String>} output 
- * @param {Object} input 
+ * @param {Array<String>} output
+ * @param {Object} input
  * @returns {ObjectSearchResponse}
  */
-export const buildSearchResponse = ( output: Array<string>, input: { keys: Array<string>, options: SystemSearchOptions } ): CollectionMap<string> =>
-{
-       output = Array.isArray( output ) ? output : [ output ];
+export const buildSearchResponse = (
+       output: Array<string>,
+       input: { keys: Array<string>; options: SystemSearchOptions },
+): CollectionMap<string> => {
+       output = Array.isArray(output) ? output : [output];
        const length: number = output.length;
        let index: number = 0;
 
@@ -232,19 +254,21 @@ export const buildSearchResponse = ( output: Array<string>, input: { keys: Array
 
        let results: CollectionMap<string> = {};
 
-       for ( ; index < length; index++ )
-       {
-              const line: string = output[ index ];
-              const valid: boolean = isValidPath( line, scope );
+       for (; index < length; index++) {
+              const line: string = output[index];
+              const valid: boolean = isValidPath(line, scope);
 
-              if ( valid )
-              {
-                     const file: string = getOccociatedFile( line, ( input || {} )[ "keys" ], scope ) || "stdout";
+              if (valid) {
+                     const file: string =
+                            getOccociatedFile(
+                                   line,
+                                   (input || {})["keys"],
+                                   scope,
+                            ) || "stdout";
 
-                     if ( typeof file === "string" )
-                     {
-                            results[ file ] = results[ file ] || [];
-                            results[ file ].push( cleanPath( line ) );
+                     if (typeof file === "string") {
+                            results[file] = results[file] || [];
+                            results[file].push(cleanPath(line));
                      }
               }
        }
@@ -254,13 +278,12 @@ export const buildSearchResponse = ( output: Array<string>, input: { keys: Array
 
 /**
  * File path cleaner function
- * 
+ *
  * @public
- * @param {String} value 
+ * @param {String} value
  * @returns {String}
  */
-export const cleanPath = ( value: string ): string =>
-{
-       value = value.split( "\r\n" ).join( "" );
-       return value.split( "\\" ).join( "/" );
+export const cleanPath = (value: string): string => {
+       value = value.split("\r\n").join("");
+       return value.split("\\").join("/");
 };

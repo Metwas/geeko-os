@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationPlatformMap } from "../../../../../types/ApplicationPlatformMap";
 
@@ -30,7 +30,7 @@ import { ApplicationPlatformMap } from "../../../../../types/ApplicationPlatform
 
 /**
  * Chrome application keys
- * 
+ *
  * @public
  * @type {ApplicationPlatformMap}
  */
@@ -39,36 +39,36 @@ export const CHROME_APPLICATION_MAP: ApplicationPlatformMap = {
               weight: 0.9,
               linux: "google-chrome-stable",
               windows: "chrome.exe",
-              darwin: null
+              darwin: null,
        },
-       'google-chrome': {
+       "google-chrome": {
               weight: 0.9,
               linux: "google-chrome",
               windows: "chrome.exe",
-              darwin: null
+              darwin: null,
        },
-       'thorium': {
+       thorium: {
               weight: 1,
               linux: "thorium",
               windows: "thorium.exe",
-              darwin: null
+              darwin: null,
        },
-       'thorium-browser': {
+       "thorium-browser": {
               weight: 1,
               linux: "thorium-browser",
               windows: "thorium.exe",
-              darwin: null
+              darwin: null,
        },
-       'chromium-browser': {
+       "chromium-browser": {
               weight: 1,
               linux: "chromium-browser",
               windows: "chrome.exe",
-              darwin: null
+              darwin: null,
        },
-       'chromium': {
+       chromium: {
               weight: 1,
               linux: "chromium",
               windows: "chrome.exe",
-              darwin: null
-       }
+              darwin: null,
+       },
 };

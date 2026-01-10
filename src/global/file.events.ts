@@ -24,7 +24,7 @@
 
 /**
  * File on [change] event tag
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const FILE_CHANGE_EVENT: string = "change";
 
 /**
  * File on [delete] event tag
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const FILE_DELETE_EVENT: string = "delete";
 
 /**
  * File on [create] event tag
- * 
+ *
  * @public
  * @type {String}
  */
@@ -48,7 +48,7 @@ export const FILE_CREATE_EVENT: string = "create";
 
 /**
  * File on [unwatch] event tag
- * 
+ *
  * @public
  * @type {String}
  */

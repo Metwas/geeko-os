@@ -24,13 +24,13 @@
 
 /**
  * Defines common file properties
- * 
+ *
  * @public
  */
 export type FileInfo = {
        /**
         * Filename
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -38,9 +38,9 @@ export type FileInfo = {
 
        /**
         * File extension type
-        * 
+        *
         * @public
         * @type {String}
         */
        extension: string;
-}
+};

@@ -24,7 +24,7 @@
 
 /**
  * Default URL
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,49 +32,50 @@ export const DEFAULT_CHROMIUM_URL: string = "www.google.com";
 
 /**
  * @see Chromium default launch flags which allows for a clean and minimal bootstrapping
- * 
+ *
  * @public
  * @type {ReadonlyArray<String>}
  */
 export const DEFAULT_FLAGS: ReadonlyArray<string> = [
-       '--disable-features=' +
-       [
-              'Translate',
-              'OptimizationHints',
-              'MediaRouter',
-              'DialMediaRouteProvider',
-              'CalculateNativeWinOcclusion',
-              'InterestFeedContentSuggestions',
-              'CertificateTransparencyComponentUpdater',
-              'AutofillServerCommunication'
-       ].join( ',' ),
-       '--enable-features=' + [
-              'ParallelDownloading',
-              'UnexpireFlagsM90',
-              'VaapiVideoEncoder',
-              'VaapiVideoDecoder',
-              'CanvasOopRasterization'
-       ].join( ',' ),
-       '--disable-software-rasterizer',
-       '--disable-gpu-driver-workarounds',
-       '--disable-gpu-vsync',
-       '--enable-accelerated-2d-canvas',
-       '--enable-accelerated-video-decode',
-       '--enable-accelerated-mjpeg-decode',
-       '--enable-drdc',
-       '--enable-gpu-compositing',
-       '--enable-native-gpu-memory-buffers',
-       '--enable-gpu-rasterization',
-       '--mute-audio',
-       '--no-default-browser-check',
-       '--no-first-run',
-       '--disable-backgrounding-occluded-windows',
-       '--disable-renderer-backgrounding',
-       '--disable-background-timer-throttling',
-       '--disable-ipc-flooding-protection',
-       '--password-store=basic',
-       '--use-mock-keychain',
-       '--disable-hang-monitor',
-       '--disable-prompt-on-repost',
-       '--disable-domain-reliability',
+       "--disable-features=" +
+              [
+                     "Translate",
+                     "OptimizationHints",
+                     "MediaRouter",
+                     "DialMediaRouteProvider",
+                     "CalculateNativeWinOcclusion",
+                     "InterestFeedContentSuggestions",
+                     "CertificateTransparencyComponentUpdater",
+                     "AutofillServerCommunication",
+              ].join(","),
+       "--enable-features=" +
+              [
+                     "ParallelDownloading",
+                     "UnexpireFlagsM90",
+                     "VaapiVideoEncoder",
+                     "VaapiVideoDecoder",
+                     "CanvasOopRasterization",
+              ].join(","),
+       "--disable-software-rasterizer",
+       "--disable-gpu-driver-workarounds",
+       "--disable-gpu-vsync",
+       "--enable-accelerated-2d-canvas",
+       "--enable-accelerated-video-decode",
+       "--enable-accelerated-mjpeg-decode",
+       "--enable-drdc",
+       "--enable-gpu-compositing",
+       "--enable-native-gpu-memory-buffers",
+       "--enable-gpu-rasterization",
+       "--mute-audio",
+       "--no-default-browser-check",
+       "--no-first-run",
+       "--disable-backgrounding-occluded-windows",
+       "--disable-renderer-backgrounding",
+       "--disable-background-timer-throttling",
+       "--disable-ipc-flooding-protection",
+       "--password-store=basic",
+       "--use-mock-keychain",
+       "--disable-hang-monitor",
+       "--disable-prompt-on-repost",
+       "--disable-domain-reliability",
 ];

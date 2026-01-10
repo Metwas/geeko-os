@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { FSWatcher } from "node:fs";
 
@@ -30,7 +30,10 @@ import { FSWatcher } from "node:fs";
 
 /**
  * @see FSWatcher factory type
- * 
+ *
  * @public
  */
-export type Watcher<T extends FSWatcher> = ( src: string, fn: ( eventType: string, fileName: string ) => void ) => T;
+export type Watcher<T extends FSWatcher> = (
+       src: string,
+       fn: (eventType: string, fileName: string) => void,
+) => T;

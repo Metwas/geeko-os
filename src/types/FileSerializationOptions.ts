@@ -24,17 +24,16 @@
 
 /**
  * File serialization options
- * 
+ *
  * @public
  */
-export interface FileSerializationOptions
-{
+export interface FileSerializationOptions {
        /**
         * Text-encoding type
-        * 
+        *
         * @example
         * utf-8
-        * 
+        *
         * @type {BufferEncoding}
         */
        encoding?: BufferEncoding;

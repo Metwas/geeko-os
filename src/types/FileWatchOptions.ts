@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { WatchOptions } from "node:fs";
 
@@ -30,14 +30,13 @@ import { WatchOptions } from "node:fs";
 
 /**
  * @see FsDetector watch options
- * 
+ *
  * @public
  */
-export interface FileWatchOptions extends WatchOptions
-{
+export interface FileWatchOptions extends WatchOptions {
        /**
         * Relative or absolute file or directory path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -45,7 +44,7 @@ export interface FileWatchOptions extends WatchOptions
 
        /**
         * Root path, usually same as @see path
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -53,7 +52,7 @@ export interface FileWatchOptions extends WatchOptions
 
        /**
         * Directory branch level count
-        * 
+        *
         * @public
         * @type {Number}
         */

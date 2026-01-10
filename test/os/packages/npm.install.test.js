@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 const { NpmService, LogService } = require("../../../dist/main");
 
@@ -31,16 +31,14 @@ const { NpmService, LogService } = require("../../../dist/main");
 const npm = new NpmService(new LogService());
 
 npm.getPackageVersions({
-       name: "@geeko/core"
-}).then((results) =>
-{
+       name: "@geeko/core",
+}).then((results) => {
        console.log(results);
 });
 
 npm.install({
        tarPath: "./geeko.tgz",
-       name: "@geeko/core"
-}).then((result) =>
-{
+       name: "@geeko/core",
+}).then((result) => {
        console.log(result);
 });

@@ -24,7 +24,7 @@
 
 /**
  * System standard message channel event tag
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const SYSTEM_MESSAGE_EVENT: string = "message";
 
 /**
  * System error channel event tag
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const SYSTEM_ERROR_EVENT: string = "error";
 
 /**
  * System process execute channel event tag
- * 
+ *
  * @public
  * @type {String}
  */

@@ -23,10 +23,10 @@
 */
 
 /**
- * Application cross-platform map 
- * 
+ * Application cross-platform map
+ *
  * @public
  */
 export type ApplicationPlatformMap = {
-       [ key: string ]: {};
+       [key: string]: {};
 };

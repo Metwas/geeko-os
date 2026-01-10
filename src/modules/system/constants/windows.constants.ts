@@ -24,7 +24,7 @@
 
 /**
  * Windows root drive C:\
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const WINDOWS_DEFAULT_ROOT: string = "c:\\";
 
 /**
  * Windows default object/file or executable scan command
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const WINDOWS_OBJECT_SCAN_COMMAND: string = "WHERE";
 
 /**
  * Windows default object/file or executable start command
- * 
+ *
  * @public
  * @type {String}
  */
@@ -48,7 +48,7 @@ export const WINDOWS_OBJECT_START_COMMAND: string = "START /WAIT";
 
 /**
  * Windows task kill system command
- * 
+ *
  * @public
  * @type {String}
  */

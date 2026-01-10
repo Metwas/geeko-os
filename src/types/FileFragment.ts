@@ -24,31 +24,30 @@
 
 /**
  * File fragment strong typed
- * 
+ *
  * @public
  */
-export interface FileFragment
-{
+export interface FileFragment {
        /**
         * File path
-        * 
+        *
         * @type {String}
         */
        path: string;
 
        /**
         * Directory of the given @see File
-        * 
+        *
         * @public
         * @type {String}
         */
        directory: string;
 
        /**
-        * Optional tag for the file, usually extracted after matching a criteria based on a given regex, 
-        * 
+        * Optional tag for the file, usually extracted after matching a criteria based on a given regex,
+        *
         * @example app.systems.json => 'systems'
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -56,7 +55,7 @@ export interface FileFragment
 
        /**
         * Raw data on the file
-        * 
+        *
         * @public
         * @type {Buffer}
         */
@@ -64,7 +63,7 @@ export interface FileFragment
 
        /**
         * File extension
-        * 
+        *
         * @public
         * @type {String}
         */

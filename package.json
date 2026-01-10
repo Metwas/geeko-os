@@ -22,12 +22,12 @@
        },
        "homepage": "https://github.com/Metwas/geeko-os#readme",
        "devDependencies": {
-              "@types/node": "^24.3.0"
+              "@types/node": "^24.10.6"
        },
        "dependencies": {
-              "@geeko/core": "^1.0.0",
-              "@geeko/log": "^1.0.0",
-              "@geeko/tasks": "^1.1.0",
+              "@geeko/core": "^1.1.0",
+              "@geeko/log": "^1.1.0",
+              "@geeko/tasks": "^1.5.0",
               "chrome-remote-interface": "^0.33.3"
        }
 }

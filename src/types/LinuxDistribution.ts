@@ -24,8 +24,16 @@
 
 /**
  * List of common linux distribution types
- * 
+ *
  * @public
  * @type {String}
  */
-export type LinuxDistribution = "Ubuntu" | "Debian" | "Arch" | "Fedora" | 'SUSE Linux' | 'CentOS' | "Raspbian" | string;
+export type LinuxDistribution =
+       | "Ubuntu"
+       | "Debian"
+       | "Arch"
+       | "Fedora"
+       | "SUSE Linux"
+       | "CentOS"
+       | "Raspbian"
+       | string;

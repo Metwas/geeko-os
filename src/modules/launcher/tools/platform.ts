@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { ApplicationPlatformMap } from "../../../types/ApplicationPlatformMap";
 import { Platform } from "../../../types/Platform";
@@ -31,7 +31,7 @@ import { Platform } from "../../../types/Platform";
 
 /**
  * Default platform name, defaults to 'linux'
- * 
+ *
  * @public
  * @type {String}
  */
@@ -39,18 +39,19 @@ export const DEFAULT_PLATFORM_NAME: Platform = "linux";
 
 /**
  * Creates a default platform @see DEFAULT_PLATFORM_NAME map
- * 
+ *
  * @public
- * @param {String} name 
+ * @param {String} name
  * @returns {ApplicationPlatformMap}
  */
-export const createDefaultPlatformMap = ( name: string ): ApplicationPlatformMap =>
-{
+export const createDefaultPlatformMap = (
+       name: string,
+): ApplicationPlatformMap => {
        const applicationObject: any = {};
        const platformObject: any = {};
 
-       platformObject[ DEFAULT_PLATFORM_NAME ] = name;
-       applicationObject[ name ] = platformObject;
+       platformObject[DEFAULT_PLATFORM_NAME] = name;
+       applicationObject[name] = platformObject;
 
        return applicationObject;
 };

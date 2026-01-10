@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { LinuxProvider } from "./LinuxProvider";
 
@@ -30,19 +30,17 @@ import { LinuxProvider } from "./LinuxProvider";
 
 /**
  * Raspberry PI os specific system provider
- * 
+ *
  * @public
  */
-export class RaspbianProvider extends LinuxProvider
-{
+export class RaspbianProvider extends LinuxProvider {
        /**
         * Provide the optional rasberry pi model
-        * 
+        *
         * @public
-        * @param {String} model 
+        * @param {String} model
         */
-       public constructor( public model?: string )
-       {
+       public constructor(public model?: string) {
               super();
        }
 }

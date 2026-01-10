@@ -24,7 +24,7 @@
 
 /**
  * User-friendly formatted system platforma identifications
- * 
+ *
  * @public
  * @type {String}
  */

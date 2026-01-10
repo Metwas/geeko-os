@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { FileInfo } from "../../../types/FileInfo";
 
@@ -30,16 +30,15 @@ import { FileInfo } from "../../../types/FileInfo";
 
 /**
  * File validation provider
- * 
+ *
  * @public
  */
-export abstract class FileValidator
-{
+export abstract class FileValidator {
        /**
         * Validates the given @see FileInfo
-        * 
+        *
         * @public
-        * @param {FileInfo} file 
+        * @param {FileInfo} file
         */
-       public abstract isValid( file: FileInfo ): boolean;
+       public abstract isValid(file: FileInfo): boolean;
 }

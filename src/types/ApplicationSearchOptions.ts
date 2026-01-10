@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { SystemOperationOptions } from "./SystemOperationOptions";
 
@@ -30,22 +30,21 @@ import { SystemOperationOptions } from "./SystemOperationOptions";
 
 /**
  * @see ApplicationLaucher scan options
- * 
+ *
  * @public
  */
-export interface ApplicationSearchOptions
-{
+export interface ApplicationSearchOptions {
        /**
         * Application name
-        * 
+        *
         * @public
         * @type {String}
         */
        name: string;
 
        /**
-        * Optional file extension to match in search 
-        * 
+        * Optional file extension to match in search
+        *
         * @public
         * @type {String}
         */
@@ -53,7 +52,7 @@ export interface ApplicationSearchOptions
 
        /**
         * List of system directories to scan
-        * 
+        *
         * @public
         * @type {Array<string>}
         */
@@ -61,9 +60,9 @@ export interface ApplicationSearchOptions
 
        /**
         * System operation control options, such as the @see AbortController
-        * 
+        *
         * @public
         * @type {SystemOperationOptions}
         */
-       abortOptions?: SystemOperationOptions
+       abortOptions?: SystemOperationOptions;
 }

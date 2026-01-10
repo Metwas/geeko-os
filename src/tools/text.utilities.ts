@@ -24,7 +24,7 @@
 
 /**
  * Newline + return carriage regex
- * 
+ *
  * @public
  * @type {RegExp}
  */
@@ -32,24 +32,22 @@ export const NEWLINE_REGEX: RegExp = /[\r\n]/g;
 
 /**
  * Split newline charactor
- * 
+ *
  * @public
- * @param {String} value 
+ * @param {String} value
  * @returns {Array<string>}
  */
-export const splitNewline = ( value: string ): Array<string> =>
-{
-       return typeof value === "string" ? value.split( NEWLINE_REGEX ) : [];
+export const splitNewline = (value: string): Array<string> => {
+       return typeof value === "string" ? value.split(NEWLINE_REGEX) : [];
 };
 
 /**
  * Split any spaces between words into newlines
- * 
+ *
  * @public
- * @param {String} value 
+ * @param {String} value
  * @returns {Array<string>}
  */
-export const replaceSpacesForNewline = ( value: string ): string =>
-{
-       return typeof value === "string" ? value.split( " " ).join( "\n" ) : "";
+export const replaceSpacesForNewline = (value: string): string => {
+       return typeof value === "string" ? value.split(" ").join("\n") : "";
 };

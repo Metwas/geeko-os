@@ -22,9 +22,13 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { PROCESS_CLOSE_CHANNEL, PROCESS_ERROR_CHANNEL, PROCESS_MESSAGE_CHANNEL } from "../../../global/application.constants";
+import {
+       PROCESS_CLOSE_CHANNEL,
+       PROCESS_ERROR_CHANNEL,
+       PROCESS_MESSAGE_CHANNEL,
+} from "../../../global/application.constants";
 import { SystemProcessExecutable } from "../../../types/SystemProcessExecutable";
 import { ChildProcess, spawn } from "node:child_process";
 import { LogService } from "@geeko/log";
@@ -34,14 +38,13 @@ import { EventEmitter } from "tseep";
 
 /**
  * Application process maangement interface
- * 
- * @public 
+ *
+ * @public
  */
-export interface IApplicationProcess
-{
+export interface IApplicationProcess {
        /**
         * Application process identifier
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -49,14 +52,14 @@ export interface IApplicationProcess
 
        /**
         * Optional application name, otherwise returns the processId
-        * 
+        *
         * @type {String}
         */
        applicationName(): string;
 
        /**
         * Parent process identifier
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -64,7 +67,7 @@ export interface IApplicationProcess
 
        /**
         * Process spawn file
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -73,14 +76,16 @@ export interface IApplicationProcess
 
 /**
  * Application process maangement class
- * 
- * @public 
+ *
+ * @public
  */
-export class ApplicationProcess extends EventEmitter implements IApplicationProcess
+export class ApplicationProcess
+       extends EventEmitter
+       implements IApplicationProcess
 {
        /**
         * Underlying @see ChildProcess execute function
-        * 
+        *
         * @public
         * @type {():ChildProcess}
         */
@@ -88,195 +93,190 @@ export class ApplicationProcess extends EventEmitter implements IApplicationProc
 
        /**
         * Creates an instance of @see ApplicationProcess from the provided @see SystemProcessExecutable
-        * 
+        *
         * @public
-        * @param {SystemProcessExecutable} executable 
-        * @param {Object} options 
+        * @param {SystemProcessExecutable} executable
+        * @param {Object} options
         * @returns {ApplicationProcess}
         */
-       public static create = ( executable: SystemProcessExecutable, options?: { name?: string, logger?: LogService } ): ApplicationProcess =>
-       {
-              const command: string = executable[ "executablePath" ];
-              const flags: Array<string> = executable[ "arguments" ];
-              const processOptions: any = executable[ "options" ];
+       public static create = (
+              executable: SystemProcessExecutable,
+              options?: { name?: string; logger?: LogService },
+       ): ApplicationProcess => {
+              const command: string = executable["executablePath"];
+              const flags: Array<string> = executable["arguments"];
+              const processOptions: any = executable["options"];
 
-              return new ApplicationProcess( ApplicationProcess.PROCESS_SPAWN_FN( command, flags, processOptions ), options );
+              return new ApplicationProcess(
+                     ApplicationProcess.PROCESS_SPAWN_FN(
+                            command,
+                            flags,
+                            processOptions,
+                     ),
+                     options,
+              );
        };
 
        /**
         * Creates a new process wrapper instance from the provided spawned process
-        * 
+        *
         * @public
         * @param {ChildProcess} childProcess
         * @param {Object} options
         */
-       public constructor( private readonly childProcess: ChildProcess, options?: { name?: string, logger?: LogService } )
-       {
+       public constructor(
+              private readonly childProcess: ChildProcess,
+              options?: { name?: string; logger?: LogService },
+       ) {
               super();
 
-              if ( typeof options?.[ "name" ] === "string" )
-              {
-                     this._name = options[ "name" ];
+              if (typeof options?.["name"] === "string") {
+                     this._name = options["name"];
               }
 
-              this.setLogger( options?.[ "logger" ] );
+              this.setLogger(options?.["logger"]);
               // attach process event channels
               this._bindProcessEvents();
        }
 
        /**
         * Gets the configuration application name
-        * 
+        *
         * @public
         * @type {Number}
         */
        private _name: string = "";
-       public applicationName(): string
-       {
+       public applicationName(): string {
               return `${this._name || ""}( ${this.pid()} )`;
        }
 
        /**
         * Gets the process identifier
-        * 
+        *
         * @public
         * @type {Number}
         */
-       public pid(): number
-       {
+       public pid(): number {
               return this.childProcess.pid;
        }
 
        /**
-        * 
-        * @returns 
+        *
+        * @returns
         */
-       public ppid(): number | undefined
-       {
-              return this.childProcess[ "ppid" ];
+       public ppid(): number | undefined {
+              return this.childProcess["ppid"];
        }
 
        /**
         * Process spawn file
-        * 
+        *
         * @public
         * @type {String}
         */
-       public execPath(): string
-       {
+       public execPath(): string {
               return this.childProcess.spawnfile;
        }
 
        /**
         * Sends the specified signal code to the terminate the underlying @see this._process
-        * 
+        *
         * @public
         * @param {String} message
         * @returns {Boolean}
         */
-       public send( message: string ): boolean
-       {
-              return this.childProcess.send( message );
+       public send(message: string): boolean {
+              return this.childProcess.send(message);
        }
 
        /**
         * Sets the logger reference for this process wrapper
-        * 
+        *
         * @public
-        * @param {LogService} logger 
+        * @param {LogService} logger
         */
        private _logger: LogService = null;
-       public setLogger( logger: LogService ): void
-       {
-              if ( logger )
-              {
+       public setLogger(logger: LogService): void {
+              if (logger) {
                      this._logger = logger;
               }
        }
 
        /**
         * @see ChildProcess event bind helper
-        * 
+        *
         * @private
         */
-       private _bindProcessEvents(): void
-       {
-              this.childProcess.on( "spawn", () =>
-              {
-                     this.dbg( `Process Started: ${this.applicationName()}` );
-              } );
+       private _bindProcessEvents(): void {
+              this.childProcess.on("spawn", () => {
+                     this.dbg(`Process Started: ${this.applicationName()}`);
+              });
 
-              this.childProcess.on( "message", ( data: Buffer ) =>
-              {
-                     const message: string = data.toString( "utf-8" );
-                     this.dbg( `Process: ${this.applicationName()} sent: ${message}` );
+              this.childProcess.on("message", (data: Buffer) => {
+                     const message: string = data.toString("utf-8");
+                     this.dbg(
+                            `Process: ${this.applicationName()} sent: ${message}`,
+                     );
 
-                     this.emit( PROCESS_MESSAGE_CHANNEL, {
-                            message: message
-                     } );
-              } );
+                     this.emit(PROCESS_MESSAGE_CHANNEL, {
+                            message: message,
+                     });
+              });
 
-              this.childProcess.on( "exit", () =>
-              {
-                     this.dbg( `Process: ${this.applicationName()} closed` );
-                     this.emit( PROCESS_CLOSE_CHANNEL, {
-                            processId: this.pid()
-                     } );
-              } );
+              this.childProcess.on("exit", () => {
+                     this.dbg(`Process: ${this.applicationName()} closed`);
+                     this.emit(PROCESS_CLOSE_CHANNEL, {
+                            processId: this.pid(),
+                     });
+              });
 
-              this.childProcess.on( "error", ( error: string ) =>
-              {
-                     this.dbgError( `Process: ${this.applicationName()} had an error: ${error}` );
-                     this.emit( PROCESS_ERROR_CHANNEL, {
-                            message: error
-                     } );
-              } );
+              this.childProcess.on("error", (error: string) => {
+                     this.dbgError(
+                            `Process: ${this.applicationName()} had an error: ${error}`,
+                     );
+                     this.emit(PROCESS_ERROR_CHANNEL, {
+                            message: error,
+                     });
+              });
        }
 
        /**
         * Closes the underlying @see ChildProcess emitting the @see PROCESS_CLOSE_EVENT
-        * 
+        *
         * @public
         * @param {NodeJS.Signals} signal
         */
-       public close( signal: NodeJS.Signals = "SIGKILL" ): void
-       {
-              if ( this.childProcess && this.childProcess.killed === false )
-              {
-                     this.childProcess.kill( signal );
+       public close(signal: NodeJS.Signals = "SIGKILL"): void {
+              if (this.childProcess && this.childProcess.killed === false) {
+                     this.childProcess.kill(signal);
 
-                     if ( this.ppid() )
-                     {
-                            process.kill( this.ppid(), signal );
+                     if (this.ppid()) {
+                            process.kill(this.ppid(), signal);
                      }
               }
        }
 
        /**
         * Local info debugger
-        * 
+        *
         * @public
-        * @param {String} message 
+        * @param {String} message
         */
-       private dbg( message: string ): void
-       {
-              if ( this._logger )
-              {
-                     this._logger.info( message );
+       private dbg(message: string): void {
+              if (this._logger) {
+                     this._logger.info(message);
               }
        }
 
        /**
         * Local error debugger
-        * 
+        *
         * @public
-        * @param {String | Error} message 
+        * @param {String | Error} message
         */
-       private dbgError( message: string | Error ): void
-       {
-              if ( this._logger )
-              {
-                     this._logger.error( message );
+       private dbgError(message: string | Error): void {
+              if (this._logger) {
+                     this._logger.error(message);
               }
        }
 }

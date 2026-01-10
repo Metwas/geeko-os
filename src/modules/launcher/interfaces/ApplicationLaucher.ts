@@ -22,9 +22,13 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { PROCESS_CLOSE_CHANNEL, PROCESS_ERROR_CHANNEL, PROCESS_MESSAGE_CHANNEL } from "../../../global/application.constants";
+import {
+       PROCESS_CLOSE_CHANNEL,
+       PROCESS_ERROR_CHANNEL,
+       PROCESS_MESSAGE_CHANNEL,
+} from "../../../global/application.constants";
 import { ApplicationLaunchOptions } from "../../../types/ApplicationLaunchOptions";
 import { ApplicationSearchResult } from "../../../types/ApplicationSearchResult";
 import { SystemProcessExecutable } from "../../../types/SystemProcessExecutable";
@@ -39,16 +43,15 @@ import { sleep } from "@geeko/tasks";
 
 /**
  * @see IOSProvider wrapped application launcher
- * 
+ *
  * @public
  */
-export class ApplicationLauncher
-{
+export class ApplicationLauncher {
        /**
         * Caching provider @see String type
-        * 
+        *
         * @Note Set null or empty to disable caching
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -56,7 +59,7 @@ export class ApplicationLauncher
 
        /**
         * Option to allow for multiple application instances simultaneously - defaults to @see false
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -64,21 +67,20 @@ export class ApplicationLauncher
 
        /**
         * Create the application laucher with reference to a @see IOSProvider
-        * 
+        *
         * @public
         * @param {LogService} logger
         * @param {CoreOSProvider} os
         */
-       public constructor( logger?: LogService, os?: CoreOSProvider )
-       {
-              this.system = os ?? GLOBAL_SYSTEM_PROVIDER as CoreOSProvider;
-              this.resolver = new ApplicationResolver( this.system, logger );
+       public constructor(logger?: LogService, os?: CoreOSProvider) {
+              this.system = os ?? (GLOBAL_SYSTEM_PROVIDER as CoreOSProvider);
+              this.resolver = new ApplicationResolver(this.system, logger);
               this.logger = logger;
        }
 
        /**
         * Option to close the launched instance on any error events
-        * 
+        *
         * @public
         * @type {Boolean}
         */
@@ -86,7 +88,7 @@ export class ApplicationLauncher
 
        /**
         * Core system provider interface
-        * 
+        *
         * @public
         * @private
         */
@@ -94,15 +96,21 @@ export class ApplicationLauncher
 
        /**
         * Map of all launched application instances
-        * 
+        *
         * @protected
         * @type {Map<String, { instance: ApplicationProcess, options: ApplicationLaunchOptions }>}
         */
-       protected instances: Map<string, { instance: ApplicationProcess, options: ApplicationLaunchOptions }> = new Map();
+       protected instances: Map<
+              string,
+              {
+                     instance: ApplicationProcess;
+                     options: ApplicationLaunchOptions;
+              }
+       > = new Map();
 
        /**
-        * Application executable resolver 
-        * 
+        * Application executable resolver
+        *
         * @protected
         * @type {ApplicationResolver}
         */
@@ -110,9 +118,9 @@ export class ApplicationLauncher
 
        /**
         * Setting to enable a @see ApplicationProcess instance limit
-        * 
+        *
         * @Note value <= 0 will disable the limit check
-        * 
+        *
         * @public
         * @type {Number}
         */
@@ -120,7 +128,7 @@ export class ApplicationLauncher
 
        /**
         * Debugger service provider
-        * 
+        *
         * @protected
         * @type {LogService}
         */
@@ -128,185 +136,184 @@ export class ApplicationLauncher
 
        /**
         * Spawns a process from the specified executable file path
-        * 
+        *
         * @public
-        * @param {ApplicationLaunchOptions} options 
+        * @param {ApplicationLaunchOptions} options
         * @returns {Promise<ApplicationProcess>}
         */
-       public async launch( options: ApplicationLaunchOptions ): Promise<ApplicationProcess>
-       {
-              try
-              {
-                     if ( this.canCreate() === true )
-                     {
-                            const executable: ApplicationSearchResult = await this.getExecutable( options );
+       public async launch(
+              options: ApplicationLaunchOptions,
+       ): Promise<ApplicationProcess> {
+              try {
+                     if (this.canCreate() === true) {
+                            const executable: ApplicationSearchResult =
+                                   await this.getExecutable(options);
 
-                            if ( !executable?.found )
-                            {
-                                   return Promise.resolve( null );
+                            if (!executable?.found) {
+                                   return Promise.resolve(null);
                             }
 
-                            this.dbg( `Found: [${executable.application}] at: [${executable.path}]` );
+                            this.dbg(
+                                   `Found: [${executable.application}] at: [${executable.path}]`,
+                            );
 
-                            if ( options?.exclusive === true )
-                            {
+                            if (options?.exclusive === true) {
                                    await this.closeAll();
                             }
 
-                            const instance: ApplicationProcess = await this.createProcess( executable.path, options );
+                            const instance: ApplicationProcess =
+                                   await this.createProcess(
+                                          executable.path,
+                                          options,
+                                   );
 
-                            this.bind( instance );
-                            this.storeProcess( instance, options );
+                            this.bind(instance);
+                            this.storeProcess(instance, options);
 
-                            return Promise.resolve( instance );
+                            return Promise.resolve(instance);
                      }
-              }
-              catch ( error )
-              {
-                     this.dbg( error.message );
+              } catch (error) {
+                     this.dbg(error.message);
                      return null;
               }
        }
 
        /**
         * Sends a shutdown signal to the specified @see ApplicationProcess instance
-        * 
+        *
         * @public
-        * @param {ApplicationProcess} instance 
+        * @param {ApplicationProcess} instance
         */
-       public close( instance: ApplicationProcess ): void
-       {
+       public close(instance: ApplicationProcess): void {
               return instance.close();
        }
 
        /**
         * Sends a shutdown signal to all the launched @see ApplicationProcess instances
-        * 
+        *
         * @public
         * @returns {Promise<void>}
         */
-       public async closeAll(): Promise<void>
-       {
+       public async closeAll(): Promise<void> {
               const promises: Array<Promise<any>> = [];
 
-              for ( let cache of this.instances.values() )
-              {
+              for (let cache of this.instances.values()) {
                      const name: string = cache.instance.applicationName();
 
-                     if ( name )
-                     {
-                            promises.push( this.system.kill( name ) );
+                     if (name) {
+                            promises.push(this.system.kill(name));
                      }
 
                      /** allow some time for the @see ApplicationProcess instance(s) to close fully */
-                     await sleep( 10 );
+                     await sleep(10);
               }
 
-              await Promise.all( promises );
+              await Promise.all(promises);
        }
 
        /**
         * Clears the application executable path results
-        * 
+        *
         * @Note This will clear all entries if @see applicationName is omitted
-        * 
+        *
         * @public
         * @param {String} applicationName
         */
-       public clearCache( applicationName?: string ): void
-       {
+       public clearCache(applicationName?: string): void {
               /** TODO: implement */
               return;
        }
 
        /**
         * Drops the specified @see ApplicationProcess therefore events are no longer being handled by the @see ApplicationLaucher
-        * 
+        *
         * @public
-        * @param {String} instance 
+        * @param {String} instance
         */
-       public drop( instance: string ): void
-       {
-              for ( let cache of this.instances.values() )
-              {
+       public drop(instance: string): void {
+              for (let cache of this.instances.values()) {
                      const name: string = cache.instance.applicationName();
 
-                     if ( name === instance )
-                     {
+                     if (name === instance) {
                             cache.instance.removeAllListeners();
-                            this.instances.delete( instance );
+                            this.instances.delete(instance);
                      }
               }
        }
 
        /**
         * Drops all stored @see ApplicationProcess therefore events are no longer being handled by the @see ApplicationLaucher
-        * 
+        *
         * @public
         */
-       public dropAll(): void
-       {
-              for ( let cache of this.instances.values() )
-              {
-                     try
-                     {
-                            const name: string = cache.instance.applicationName();
+       public dropAll(): void {
+              for (let cache of this.instances.values()) {
+                     try {
+                            const name: string =
+                                   cache.instance.applicationName();
                             cache.instance.removeAllListeners();
 
-                            this.instances.delete( name );
-                     }
-                     catch ( error ) { }
+                            this.instances.delete(name);
+                     } catch (error) {}
               }
        }
 
        /**
         * Binds the provided @see ApplicationProcess to the essential event handlers
-        * 
+        *
         * @protected
         * @param {ApplicationProcess} instance
         */
-       protected bind( instance: ApplicationProcess ): void
-       {
-              if ( instance )
-              {
-                     instance.on( PROCESS_CLOSE_CHANNEL, this.onProcessClose.bind( this, instance ) );
-                     instance.on( PROCESS_ERROR_CHANNEL, this.onProcessError.bind( this, instance ) );
-                     instance.on( PROCESS_MESSAGE_CHANNEL, this.onProcessMessage.bind( this, instance ) );
+       protected bind(instance: ApplicationProcess): void {
+              if (instance) {
+                     instance.on(
+                            PROCESS_CLOSE_CHANNEL,
+                            this.onProcessClose.bind(this, instance),
+                     );
+                     instance.on(
+                            PROCESS_ERROR_CHANNEL,
+                            this.onProcessError.bind(this, instance),
+                     );
+                     instance.on(
+                            PROCESS_MESSAGE_CHANNEL,
+                            this.onProcessMessage.bind(this, instance),
+                     );
               }
        }
 
        /**
         * Stores the provided @see ApplicationProcess
-        * 
+        *
         * @protected
         * @param {ApplicationProcess} instance
         * @param {ApplicationLaunchOptions} options
         */
-       protected storeProcess( instance: ApplicationProcess, options: ApplicationLaunchOptions ): void
-       {
-              if ( instance )
-              {
+       protected storeProcess(
+              instance: ApplicationProcess,
+              options: ApplicationLaunchOptions,
+       ): void {
+              if (instance) {
                      const key: string = instance.applicationName();
 
-                     if ( this.instances.has( key ) === true )
-                     {
+                     if (this.instances.has(key) === true) {
                             return;
                      }
 
-                     this.instances.set( key, { instance, options } );
+                     this.instances.set(key, { instance, options });
               }
        }
 
        /**
         * Validate if the application can be created
-        * 
+        *
         * @protected
         * @returns {Boolean}
         */
-       protected canCreate(): boolean
-       {
-              if ( this.maxInstances > 0 && ( this.instances.size >= this.maxInstances ) )
-              {
+       protected canCreate(): boolean {
+              if (
+                     this.maxInstances > 0 &&
+                     this.instances.size >= this.maxInstances
+              ) {
                      return false;
               }
 
@@ -315,75 +322,79 @@ export class ApplicationLauncher
 
        /**
         * Async process spawn helper function
-        * 
+        *
         * @private
-        * @param {String} execPath 
-        * @param {ApplicationLaunchOptions} options 
+        * @param {String} execPath
+        * @param {ApplicationLaunchOptions} options
         * @returns {Promise<ApplicationProcess>}
         */
-       protected createProcess( execPath: string, options?: ApplicationLaunchOptions ): Promise<ApplicationProcess>
-       {
-              try
-              {
-                     const executable: SystemProcessExecutable = this.system.buildExecutable( execPath, options );
+       protected createProcess(
+              execPath: string,
+              options?: ApplicationLaunchOptions,
+       ): Promise<ApplicationProcess> {
+              try {
+                     const executable: SystemProcessExecutable =
+                            this.system.buildExecutable(execPath, options);
 
-                     if ( !executable?.executablePath )
-                     {
-                            throw new Error( "Invalid executable components was provided" );
+                     if (!executable?.executablePath) {
+                            throw new Error(
+                                   "Invalid executable components was provided",
+                            );
                      }
 
-                     return Promise.resolve( ApplicationProcess.create( executable, {
-                            logger: this.logger,
-                            name: getFileNameFromPath( executable[ "filePath" ] )
-                     } ) );
-              }
-              catch ( error )
-              {
-                     return Promise.reject( error );
+                     return Promise.resolve(
+                            ApplicationProcess.create(executable, {
+                                   logger: this.logger,
+                                   name: getFileNameFromPath(
+                                          executable["filePath"],
+                                   ),
+                            }),
+                     );
+              } catch (error) {
+                     return Promise.reject(error);
               }
        }
 
        /**
         * Scans & builds the application executable based on the current systems @see IOSProvider
-        * 
+        *
         * @protected
         * @param {ApplicationLaunchOptions} options
         * @returns {ApplicationSearchResult}
         */
-       protected async getExecutable( options: ApplicationLaunchOptions ): Promise<ApplicationSearchResult>
-       {
-              return await this.resolver.resolve( options );
+       protected async getExecutable(
+              options: ApplicationLaunchOptions,
+       ): Promise<ApplicationSearchResult> {
+              return await this.resolver.resolve(options);
        }
 
        /**
         * Default on process close event handler
-        * 
+        *
         * @private
-        * @param {ApplicationProcess} instance 
+        * @param {ApplicationProcess} instance
         */
-       protected onProcessClose( instance: ApplicationProcess ): void
-       {
-              if ( instance )
-              {
-                     const existing = this.instances.get( instance.applicationName() );
+       protected onProcessClose(instance: ApplicationProcess): void {
+              if (instance) {
+                     const existing = this.instances.get(
+                            instance.applicationName(),
+                     );
                      const options: ApplicationLaunchOptions = existing.options;
 
-                     if ( existing && this.removeInstance( instance ) )
-                     {
-                            this.dbg( `Application: ${instance.applicationName()} closed` );
+                     if (existing && this.removeInstance(instance)) {
+                            this.dbg(
+                                   `Application: ${instance.applicationName()} closed`,
+                            );
                             /** TODO: ensure close was not a force close before attempting to restart application */
-                            if ( options?.restartOnExit === true )
-                            {
-                                   if ( instance[ "__timeout__" ] )
-                                   {
-                                          clearTimeout( instance[ "__timeout__" ] );
+                            if (options?.restartOnExit === true) {
+                                   if (instance["__timeout__"]) {
+                                          clearTimeout(instance["__timeout__"]);
                                    }
 
-                                   instance[ "__timeout__" ] = setTimeout( () =>
-                                   {
-                                          clearTimeout( instance[ "__timeout__" ] );
-                                          this.launch( options );
-                                   }, 1000 );
+                                   instance["__timeout__"] = setTimeout(() => {
+                                          clearTimeout(instance["__timeout__"]);
+                                          this.launch(options);
+                                   }, 1000);
                             }
                      }
               }
@@ -391,52 +402,56 @@ export class ApplicationLauncher
 
        /**
         * Default on process error event handler
-        * 
+        *
         * @private
-        * @param {ApplicationProcess} instance 
+        * @param {ApplicationProcess} instance
         */
-       protected onProcessError( instance: ApplicationProcess, error: Error | string ): void
-       {
-              this.dbg( `Application: ${instance.applicationName()} had error: ${error}` );
+       protected onProcessError(
+              instance: ApplicationProcess,
+              error: Error | string,
+       ): void {
+              this.dbg(
+                     `Application: ${instance.applicationName()} had error: ${error}`,
+              );
               // close instance if set
-              if ( this.closeOnError === true )
-              {
+              if (this.closeOnError === true) {
                      instance.close();
               }
        }
 
        /**
         * Default on process message event handler
-        * 
+        *
         * @private
-        * @param {ApplicationProcess} instance 
+        * @param {ApplicationProcess} instance
         * @param {Buffer | String} message
         */
-       protected onProcessMessage( instance: ApplicationProcess, message: any ): void
-       {
-              this.dbg( `Application: ${instance.applicationName()} sent message: ${message}` );
+       protected onProcessMessage(
+              instance: ApplicationProcess,
+              message: any,
+       ): void {
+              this.dbg(
+                     `Application: ${instance.applicationName()} sent message: ${message}`,
+              );
        }
 
        /**
         * Removes the specified @see ApplicationProcess from the @see Map instances
-        * 
+        *
         * @protected
-        * @param {ApplicationProcess} instance 
+        * @param {ApplicationProcess} instance
         * @returns {Boolean}
         */
-       protected removeInstance( instance: ApplicationProcess ): boolean
-       {
-              if ( !instance )
-              {
+       protected removeInstance(instance: ApplicationProcess): boolean {
+              if (!instance) {
                      return false;
               }
 
               const id: string = instance.applicationName();
               // clear from map
-              const deleted: boolean = this.instances.delete( id );
+              const deleted: boolean = this.instances.delete(id);
 
-              if ( deleted )
-              {
+              if (deleted) {
                      instance.removeAllListeners();
               }
 
@@ -445,15 +460,13 @@ export class ApplicationLauncher
 
        /**
         * Local debug helper function
-        * 
+        *
         * @protected
-        * @param {Object | String} message 
+        * @param {Object | String} message
         */
-       protected dbg( message: any ): void
-       {
-              if ( this.logger )
-              {
-                     this.logger.debug( message );
+       protected dbg(message: any): void {
+              if (this.logger) {
+                     this.logger.debug(message);
               }
        }
 }

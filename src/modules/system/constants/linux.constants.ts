@@ -24,7 +24,7 @@
 
 /**
  * Linux root '/'
- * 
+ *
  * @public
  * @type {String}
  */
@@ -32,7 +32,7 @@ export const LINUX_DEFAULT_ROOT: string = "/";
 
 /**
  * Linux home directory
- * 
+ *
  * @public
  * @type {String}
  */
@@ -40,7 +40,7 @@ export const LINUX_DEFAULT_HOME: string = "~/";
 
 /**
  * Linux default object/file or executable scan command
- * 
+ *
  * @public
  * @type {String}
  */
@@ -48,7 +48,7 @@ export const LINUX_OBJECT_SCAN_COMMAND: string = "find";
 
 /**
  * Linux default application file path search command
- * 
+ *
  * @public
  * @type {String}
  */
@@ -56,7 +56,7 @@ export const LINUX_OBJECT_WHERE_COMMAND: string = "whereis";
 
 /**
  * Standard task pkill command for linux
- * 
+ *
  * @public
  * @type {String}
  */
@@ -64,7 +64,7 @@ export const LINUX_EXEC_PKILL: string = "pkill";
 
 /**
  * Standard task kill command for linux
- * 
+ *
  * @public
  * @type {String}
  */

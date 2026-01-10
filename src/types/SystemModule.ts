@@ -24,14 +24,13 @@
 
 /**
  * Common system module interface
- * 
+ *
  * @public
  */
-export interface SystemModule
-{
+export interface SystemModule {
        /**
         * Module name
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -39,7 +38,7 @@ export interface SystemModule
 
        /**
         * Optional module version
-        * 
+        *
         * @public
         * @type {String}
         */
@@ -47,7 +46,7 @@ export interface SystemModule
 
        /**
         * Optional module installation system path
-        * 
+        *
         * @public
         * @type {String}
         */

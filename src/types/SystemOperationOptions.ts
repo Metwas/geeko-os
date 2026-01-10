@@ -24,14 +24,13 @@
 
 /**
  * System operation options interface
- * 
- * @public 
+ *
+ * @public
  */
-export interface SystemOperationOptions
-{
+export interface SystemOperationOptions {
        /**
         * Controller to send a abort signal to the specific system operations
-        * 
+        *
         * @public
         * @type {AbortController}
         */

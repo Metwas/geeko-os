@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { NpmModule } from "../npm/NpmModule";
 import { PromiseToken } from "@geeko/tasks";
@@ -31,21 +31,21 @@ import { PromiseToken } from "@geeko/tasks";
 
 /**
  * Npm package installation token
- * 
+ *
  * @public
  */
 export type ModuleToken<TInput> = {
        /**
         * Token identifier
-        * 
+        *
         * @public
         * @type {String}
         */
        id: string;
 
        /**
-        * Awaitable @see PromiseToken 
-        * 
+        * Awaitable @see PromiseToken
+        *
         * @public
         * @type {PromiseToken<TInput>}
         */
@@ -53,9 +53,9 @@ export type ModuleToken<TInput> = {
 
        /**
         * @see NpmModule to install
-        * 
+        *
         * @public
         * @type {NpmModule}
         */
-       module: NpmModule
-}
+       module: NpmModule;
+};

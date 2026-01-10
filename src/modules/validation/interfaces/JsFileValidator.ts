@@ -22,7 +22,7 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- @Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { FileInfo } from "../../../types/FileInfo";
 import { FileValidator } from "./FileValidator";
@@ -31,29 +31,26 @@ import { FileValidator } from "./FileValidator";
 
 /**
  * Javascript file extension
- * 
+ *
  * @type {String}
  */
 const JS_EXTENSION: string = "js";
 
 /**
  * File validation provider
- * 
+ *
  * @public
  */
-export class JsFileValidator extends FileValidator
-{
+export class JsFileValidator extends FileValidator {
        /**
         * Validates the given @see FileInfo
-        * 
+        *
         * @public
-        * @param {FileInfo} file 
+        * @param {FileInfo} file
         */
-       public isValid( file: FileInfo ): boolean
-       {
-              if ( file?.[ "extension" ] )
-              {
-                     return file[ "extension" ].replace( ".", "" ) === JS_EXTENSION;
+       public isValid(file: FileInfo): boolean {
+              if (file?.["extension"]) {
+                     return file["extension"].replace(".", "") === JS_EXTENSION;
               }
 
               return false;
