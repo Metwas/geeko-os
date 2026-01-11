@@ -22,24 +22,11 @@
      SOFTWARE.
 */
 
-export * from "./ApplicationResolverOptions";
-export * from "./FileSerializationOptions";
-export * from "./ApplicationSearchOptions";
-export * from "./ApplicationLaunchOptions";
-export * from "./ApplicationSearchResult";
-export * from "./SystemProcessExecutable";
-export * from "./ApplicationPlatformMap";
-export * from "./SystemOperationOptions";
-export * from "./ThreadPoolOptions";
-export * from "./LinuxDistribution";
-export * from "./FileWatchOptions";
-export * from "./FileEventOptions";
-export * from "./NetworkInterface";
-export * from "./ApplicationName";
-export * from "./SystemModule";
-export * from "./FileFragment";
-export * from "./FileWatcher";
-export * from "./Application";
-export * from "./FileInfo";
-export * from "./Platform";
-export * from "./token";
+/**
+ * @see FsDetector construction options
+ *
+ * @public
+ */
+export type DetectorOptions = {
+       workers?: boolean | number;
+};
