@@ -3,15 +3,9 @@
               "module": "nodenext",
               "target": "esnext",
               "outDir": "dist",
-              "lib": [
-                     "ESNext"
-              ],
+              "lib": ["ESNext"],
               "declaration": true,
               "removeComments": true,
-              "experimentalDecorators": true,
-              "resolveJsonModule": true,
        },
-       "include": [
-              "src"
-       ]
+       "include": ["src"],
 }

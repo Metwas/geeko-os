@@ -22,6 +22,7 @@
      SOFTWARE.
 */
 
+export * from "./modules/threads/ThreadPool";
 export * from "./modules/validation";
 export * from "./modules/launcher";
 export * from "./modules/system";

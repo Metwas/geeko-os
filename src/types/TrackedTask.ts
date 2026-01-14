@@ -24,53 +24,17 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { WorkerOptions } from "node:worker_threads";
+import { PromiseToken } from "@geeko/tasks";
+import { Result } from "./Result";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * @see ThreadPool constructor options
+ * @see PromiseToken tracked task
  *
  * @public
  */
-export type ThreadPoolOptions = {
-       /**
-        * Number of threads to manage
-        *
-        * @public
-        * @type {Number | "auto"}
-        */
-       size?: number | "auto";
-
-       /**
-        * Thread execution file path
-        *
-        * @public
-        * @type {String}
-        */
-       file: string;
-
-       /**
-        * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
-        *
-        * @public
-        * @type {Boolean}
-        */
-       persistent?: boolean;
-
-       /**
-        * Max number of tasks in the queue backlog
-        *
-        * @public
-        * @type {Number}
-        */
-       maxQueueSize?: number;
-
-       /**
-        * @see Worker based options
-        *
-        * @public
-        * @type {WorkerOptions}
-        */
-       workerOptions?: WorkerOptions;
+export type TrackedTask<T> = {
+       token: PromiseToken<Result<T, Error>>;
+       data: T;
 };

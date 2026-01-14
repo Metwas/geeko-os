@@ -24,53 +24,12 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { WorkerOptions } from "node:worker_threads";
+const { parentPort } = require("node:worker_threads");
+const { sleep } = require("@geeko/tasks");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-/**
- * @see ThreadPool constructor options
- *
- * @public
- */
-export type ThreadPoolOptions = {
-       /**
-        * Number of threads to manage
-        *
-        * @public
-        * @type {Number | "auto"}
-        */
-       size?: number | "auto";
-
-       /**
-        * Thread execution file path
-        *
-        * @public
-        * @type {String}
-        */
-       file: string;
-
-       /**
-        * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
-        *
-        * @public
-        * @type {Boolean}
-        */
-       persistent?: boolean;
-
-       /**
-        * Max number of tasks in the queue backlog
-        *
-        * @public
-        * @type {Number}
-        */
-       maxQueueSize?: number;
-
-       /**
-        * @see Worker based options
-        *
-        * @public
-        * @type {WorkerOptions}
-        */
-       workerOptions?: WorkerOptions;
-};
+parentPort.on("message", async (data) => {
+       await sleep(5);
+       parentPort.postMessage(data);
+});

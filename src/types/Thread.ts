@@ -24,53 +24,29 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { WorkerOptions } from "node:worker_threads";
+import { Worker } from "node:worker_threads";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * @see ThreadPool constructor options
+ * @see Worker thread wrapper type
  *
  * @public
  */
-export type ThreadPoolOptions = {
+export type Thread = {
        /**
-        * Number of threads to manage
-        *
-        * @public
-        * @type {Number | "auto"}
-        */
-       size?: number | "auto";
-
-       /**
-        * Thread execution file path
-        *
-        * @public
-        * @type {String}
-        */
-       file: string;
-
-       /**
-        * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
+        * Idle flag
         *
         * @public
         * @type {Boolean}
         */
-       persistent?: boolean;
+       idle: boolean;
 
        /**
-        * Max number of tasks in the queue backlog
+        * Worker reference
         *
         * @public
-        * @type {Number}
+        * @type {Worker}
         */
-       maxQueueSize?: number;
-
-       /**
-        * @see Worker based options
-        *
-        * @public
-        * @type {WorkerOptions}
-        */
-       workerOptions?: WorkerOptions;
+       worker: Worker;
 };

@@ -22,55 +22,47 @@
      SOFTWARE.
 */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-import { WorkerOptions } from "node:worker_threads";
-
-/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
 /**
- * @see ThreadPool constructor options
+ * Returns a good @see Result
  *
  * @public
  */
-export type ThreadPoolOptions = {
-       /**
-        * Number of threads to manage
-        *
-        * @public
-        * @type {Number | "auto"}
-        */
-       size?: number | "auto";
+type Ok<T> = { ok: true; value: T };
 
-       /**
-        * Thread execution file path
-        *
-        * @public
-        * @type {String}
-        */
-       file: string;
+/**
+ * Returns a bad @see Result
+ *
+ * @public
+ */
+type Err<E> = { ok: false; error: E };
 
-       /**
-        * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
-        *
-        * @public
-        * @type {Boolean}
-        */
-       persistent?: boolean;
+/**
+ * Type defining only two output conditions, either @see Ok OR @see Err
+ *
+ * @public
+ */
+export type Result<T, E> = Ok<T> | Err<E>;
 
-       /**
-        * Max number of tasks in the queue backlog
-        *
-        * @public
-        * @type {Number}
-        */
-       maxQueueSize?: number;
+/**
+ * Creates a @see Result wrapper around the @see T value provided
+ *
+ * @public
+ * @param {T} value
+ * @returns {Result<T, never>}
+ */
+export const Ok = <T>(value: T): Result<T, never> => ({
+       ok: true,
+       value,
+});
 
-       /**
-        * @see Worker based options
-        *
-        * @public
-        * @type {WorkerOptions}
-        */
-       workerOptions?: WorkerOptions;
-};
+/**
+ * Creates an error @see Result wrapper
+ *
+ * @public
+ * @param {E} error
+ * @returns {Result<never, E>}
+ */
+export const Err = <E>(error: E): Result<never, E> => ({
+       ok: false,
+       error,
+});
