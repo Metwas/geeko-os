@@ -17,23 +17,29 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { LinuxProvider } from "./LinuxProvider";
+import { Worker } from "node:worker_threads";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * Raspberry PI os specific system provider
+ * @see Worker thread wrapper type
  *
  * @public
  */
-export class RaspbianProvider extends LinuxProvider {
+export type Thread = {
        /**
-        * Provide the optional rasberry pi model
+        * Idle flag
         *
         * @public
-        * @param {String} model
+        * @type {Boolean}
         */
-       public constructor(public model?: string) {
-              super();
-       }
-}
+       idle: boolean;
+
+       /**
+        * Worker reference
+        *
+        * @public
+        * @type {Worker}
+        */
+       worker: Worker;
+};

@@ -16,41 +16,46 @@
  */
 
 /**
- * @see ChildProcess message channel
+ * Returns a good @see Result
  *
  * @public
- * @type {String}
  */
-export const PROCESS_MESSAGE_CHANNEL: string = "message";
+type Ok<T> = { ok: true; value: T };
 
 /**
- * @see ChildProcess error channel
+ * Returns a bad @see Result
  *
  * @public
- * @type {String}
  */
-export const PROCESS_ERROR_CHANNEL: string = "error";
+type Err<E> = { ok: false; error: E };
 
 /**
- * @see ChildProcess close channel
+ * Type defining only two output conditions, either @see Ok OR @see Err
  *
  * @public
- * @type {String}
  */
-export const PROCESS_CLOSE_CHANNEL: string = "close";
+export type Result<T, E> = Ok<T> | Err<E>;
 
 /**
- * Chrome-based executable path stored within the enviroment variable
+ * Creates a @see Result wrapper around the @see T value provided
  *
  * @public
- * @type {String}
+ * @param {T} value
+ * @returns {Result<T, never>}
  */
-export const CHROME_ENV_TOKEN: string = "CHROME_PATH";
+export const Ok = <T>(value: T): Result<T, never> => ({
+       ok: true,
+       value,
+});
 
 /**
- * Default chromium remote-debugging port
+ * Creates an error @see Result wrapper
  *
  * @public
- * @type {Number}
+ * @param {E} error
+ * @returns {Result<never, E>}
  */
-export const DEFAULT_REMOTE_DEBUG_PORT: number = 9222;
+export const Err = <E>(error: E): Result<never, E> => ({
+       ok: false,
+       error,
+});

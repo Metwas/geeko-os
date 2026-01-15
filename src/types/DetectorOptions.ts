@@ -15,25 +15,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-import { LinuxProvider } from "./LinuxProvider";
-
-/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
 /**
- * Raspberry PI os specific system provider
+ * @see FsDetector construction options
  *
  * @public
  */
-export class RaspbianProvider extends LinuxProvider {
-       /**
-        * Provide the optional rasberry pi model
-        *
-        * @public
-        * @param {String} model
-        */
-       public constructor(public model?: string) {
-              super();
-       }
-}
+export type DetectorOptions = {
+       workers?: boolean | number;
+};

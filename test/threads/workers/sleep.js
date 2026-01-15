@@ -17,23 +17,12 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { LinuxProvider } from "./LinuxProvider";
+const { parentPort } = require("node:worker_threads");
+const { sleep } = require("@geeko/tasks");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-/**
- * Raspberry PI os specific system provider
- *
- * @public
- */
-export class RaspbianProvider extends LinuxProvider {
-       /**
-        * Provide the optional rasberry pi model
-        *
-        * @public
-        * @param {String} model
-        */
-       public constructor(public model?: string) {
-              super();
-       }
-}
+parentPort.on("message", async (data) => {
+       await sleep(5);
+       parentPort.postMessage(data);
+});

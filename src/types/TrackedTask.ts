@@ -17,23 +17,17 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { LinuxProvider } from "./LinuxProvider";
+import { PromiseToken } from "@geeko/tasks";
+import { Result } from "./Result";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * Raspberry PI os specific system provider
+ * @see PromiseToken tracked task
  *
  * @public
  */
-export class RaspbianProvider extends LinuxProvider {
-       /**
-        * Provide the optional rasberry pi model
-        *
-        * @public
-        * @param {String} model
-        */
-       public constructor(public model?: string) {
-              super();
-       }
-}
+export type TrackedTask<T> = {
+       token: PromiseToken<Result<T, Error>>;
+       data: T;
+};

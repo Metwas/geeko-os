@@ -17,23 +17,53 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { LinuxProvider } from "./LinuxProvider";
+import { WorkerOptions } from "node:worker_threads";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * Raspberry PI os specific system provider
+ * @see ThreadPool constructor options
  *
  * @public
  */
-export class RaspbianProvider extends LinuxProvider {
+export type ThreadPoolOptions = {
        /**
-        * Provide the optional rasberry pi model
+        * Number of threads to manage
         *
         * @public
-        * @param {String} model
+        * @type {Number | "auto"}
         */
-       public constructor(public model?: string) {
-              super();
-       }
-}
+       size?: number | "auto";
+
+       /**
+        * Thread execution file path
+        *
+        * @public
+        * @type {String}
+        */
+       file: string;
+
+       /**
+        * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
+        *
+        * @public
+        * @type {Boolean}
+        */
+       persistent?: boolean;
+
+       /**
+        * Max number of tasks in the queue backlog
+        *
+        * @public
+        * @type {Number}
+        */
+       maxQueueSize?: number;
+
+       /**
+        * @see Worker based options
+        *
+        * @public
+        * @type {WorkerOptions}
+        */
+       workerOptions?: WorkerOptions;
+};
