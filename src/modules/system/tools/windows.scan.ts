@@ -20,8 +20,8 @@
 import { buildWindowsSearchOptions, buildSearchResponse } from "./scan.builder";
 import { WINDOWS_OBJECT_SCAN_COMMAND } from "../constants/windows.constants";
 import { SystemSearchOptions } from "../interfaces/SystemSearchOptions";
+import { ChildProcess, exec, ExecException } from "node:child_process";
 import { splitNewline } from "../../../tools/text.utilities";
-import { ChildProcess, exec } from "node:child_process";
 import { IOSProvider } from "../interfaces/os";
 import { CollectionMap } from "@geeko/core";
 
@@ -32,18 +32,20 @@ import { CollectionMap } from "@geeko/core";
  *
  * @public
  * @param {IOSProvider} provider
- * @param {String} searchTerm
  * @param {SystemSearchOptions} options
  * @returns {Promise<Array<string>>}
  */
 export const whereIs = (
        provider: IOSProvider,
        options: SystemSearchOptions,
-): Promise<CollectionMap<string>> => {
-       return new Promise<CollectionMap<string>>((resolve, reject) => {
-              let search: Array<string> = Array.isArray(options?.["name"])
+): Promise<CollectionMap<string> | undefined> => {
+       return new Promise<CollectionMap<string> | undefined>((resolve, _) => {
+              let search: Array<string | undefined> | undefined = Array.isArray(
+                     options?.["name"],
+              )
                      ? options["name"]
                      : [options?.["name"]];
+
               const flags: Array<string> = buildWindowsSearchOptions(
                      provider,
                      search,
@@ -52,9 +54,13 @@ export const whereIs = (
 
               const childProcess: ChildProcess = exec(
                      `${WINDOWS_OBJECT_SCAN_COMMAND} ${flags.join(" ")}`,
-                     (error: Error, stdout: string, stderr: string) => {
+                     (
+                            error: ExecException | null,
+                            stdout: string,
+                            stderr: string,
+                     ) => {
                             if (error || stderr) {
-                                   resolve(null);
+                                   resolve(void 0);
                             } else {
                                    resolve(
                                           buildSearchResponse(

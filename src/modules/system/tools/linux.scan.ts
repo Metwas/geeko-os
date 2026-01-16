@@ -18,18 +18,20 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import {
-       LINUX_OBJECT_SCAN_COMMAND,
        LINUX_OBJECT_WHERE_COMMAND,
+       LINUX_OBJECT_SCAN_COMMAND,
 } from "../constants/linux.constants";
-import { buildLinuxSearchOptions, buildSearchResponse } from "./scan.builder";
+
 import {
-       splitNewline,
        replaceSpacesForNewline,
+       splitNewline,
 } from "../../../tools/text.utilities";
+
+import { buildLinuxSearchOptions, buildSearchResponse } from "./scan.builder";
 import { SystemSearchOptions } from "../interfaces/SystemSearchOptions";
+import { exec, ExecException } from "node:child_process";
 import { IOSProvider } from "../interfaces/os";
 import { CollectionMap } from "@geeko/core";
-import { exec } from "node:child_process";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
@@ -45,43 +47,51 @@ import { exec } from "node:child_process";
 export const whereIs = (
        provider: IOSProvider,
        options?: SystemSearchOptions,
-): Promise<CollectionMap<string>> => {
-       return new Promise<CollectionMap<string>>((resolve, reject) => {
-              let search: Array<string> = Array.isArray(options?.name)
-                     ? options.name
-                     : [options?.name];
-              const flags: Array<string> = buildLinuxSearchOptions(
-                     provider,
-                     search,
-                     options,
-              );
+): Promise<CollectionMap<string> | undefined> => {
+       return new Promise<CollectionMap<string> | undefined>(
+              (resolve, reject) => {
+                     let search: Array<string | undefined> | undefined =
+                            Array.isArray(options?.name)
+                                   ? options.name
+                                   : [options?.name];
 
-              const command: string =
-                     options.scope === "application"
-                            ? LINUX_OBJECT_WHERE_COMMAND
-                            : LINUX_OBJECT_SCAN_COMMAND;
+                     const flags: Array<string> = buildLinuxSearchOptions(
+                            provider,
+                            search,
+                            options,
+                     );
 
-              exec(
-                     `${command} ${flags.join(" ")} 2>/dev/null`,
-                     (error: Error, stdout: string, stderr: string) => {
-                            if (stderr || !stdout) {
-                                   resolve(null);
-                            } else {
-                                   resolve(
-                                          buildSearchResponse(
-                                                 splitNewline(
-                                                        replaceSpacesForNewline(
-                                                               stdout,
+                     const command: string =
+                            options?.scope === "application"
+                                   ? LINUX_OBJECT_WHERE_COMMAND
+                                   : LINUX_OBJECT_SCAN_COMMAND;
+
+                     exec(
+                            `${command} ${flags.join(" ")} 2>/dev/null`,
+                            (
+                                   error: ExecException | null,
+                                   stdout: string,
+                                   stderr: string,
+                            ) => {
+                                   if (stderr || !stdout) {
+                                          resolve(void 0);
+                                   } else {
+                                          resolve(
+                                                 buildSearchResponse(
+                                                        splitNewline(
+                                                               replaceSpacesForNewline(
+                                                                      stdout,
+                                                               ),
                                                         ),
+                                                        {
+                                                               keys: search,
+                                                               options: options,
+                                                        },
                                                  ),
-                                                 {
-                                                        keys: search,
-                                                        options: options,
-                                                 },
-                                          ),
-                                   );
-                            }
-                     },
-              );
-       });
+                                          );
+                                   }
+                            },
+                     );
+              },
+       );
 };

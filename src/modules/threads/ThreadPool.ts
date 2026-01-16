@@ -43,8 +43,8 @@ export class ThreadPool {
               this._persistent = options.persistent ?? true;
               this._auto = options.size === "auto";
 
+              this._max = options.maxQueueSize ?? ThreadPool.MAX_QUEUE_SIZE;
               this._size = this._csize(options.size);
-              this._max = options.maxQueueSize;
               this._file = options.file;
 
               this._logger = logger;
@@ -58,6 +58,14 @@ export class ThreadPool {
         * @type {Number}
         */
        public static readonly CLEAN_DELAY: number = 1000;
+
+       /**
+        * Maximum queue size
+        *
+        * @public
+        * @type {Number}
+        */
+       public static readonly MAX_QUEUE_SIZE: number = 1000;
 
        /**
         * log provider
@@ -97,7 +105,7 @@ export class ThreadPool {
         * @private
         * @type {Boolean}
         */
-       private _persistent: boolean;
+       private _persistent: boolean = true;
 
        /**
         * @see Worker construction options
@@ -105,7 +113,7 @@ export class ThreadPool {
         * @private
         * @type {WorkerOptions}
         */
-       private _wsoptions: WorkerOptions;
+       private _wsoptions: WorkerOptions | undefined = void 0;
 
        /**
         * Map of active @see Promise based @see Result<any, Error> tasks awaiting processing by a given thread
@@ -185,7 +193,7 @@ export class ThreadPool {
         * @param {WorkerOptions} options
         * @returns {WorkerOptions}
         */
-       public wsoptions(options?: WorkerOptions): WorkerOptions {
+       public wsoptions(options?: WorkerOptions): WorkerOptions | undefined {
               if (options) {
                      this._wsoptions = options;
               }
@@ -200,7 +208,7 @@ export class ThreadPool {
         * @param {T} data
         * @returns {Promise<Result<T, Error>>}
         */
-       public queue<T>(data?: T): Promise<Result<T, Error>> {
+       public queue<T>(data?: T): Promise<Result<T, Error>> | undefined {
               if (
                      data === void 0 ||
                      data === null ||
@@ -232,7 +240,7 @@ export class ThreadPool {
                      const item: TrackedTask<any> | undefined =
                             this._queue.pop();
 
-                     const token: PromiseToken<Result<any, Error>> =
+                     const token: PromiseToken<Result<any, Error>> | undefined =
                             item?.token;
 
                      if (!token) {
@@ -368,10 +376,15 @@ export class ThreadPool {
         * @param {Any} data
         */
        private _message(worker: Worker, id: number, data?: any): void {
-              const thread: Thread = this._threads.get(id);
+              const thread: Thread | undefined = this._threads.get(id);
+
+              if (!thread) {
+                     return void 0;
+              }
+
               thread.idle = true;
 
-              const token: PromiseToken<Result<any, Error>> =
+              const token: PromiseToken<Result<any, Error>> | undefined =
                      this._resolvers.get(id);
 
               if (token) {
@@ -380,7 +393,7 @@ export class ThreadPool {
 
               this._resolvers.delete(id);
 
-              if (this._auto) {
+              if (this._auto && this._size > this._queue.length + 1) {
                      thread.worker.terminate();
               }
 
@@ -398,10 +411,12 @@ export class ThreadPool {
         * @param {Error} error
         */
        private _error(worker: Worker, id: number, error?: Error): void {
-              const thread: Thread = this._threads.get(id);
+              const thread: Thread | undefined = this._threads.get(id);
 
               if (thread) {
-                     const token: PromiseToken<any> = this._resolvers.get(id);
+                     const token: PromiseToken<any> | undefined =
+                            this._resolvers.get(id);
+
                      thread.idle = true;
 
                      if (token) {
@@ -425,7 +440,7 @@ export class ThreadPool {
        private _exit(worker: Worker, id: number, code?: number): void {
               this._logger?.debug(`Worker [${id}::${worker.threadId}] Exited`);
 
-              const token: PromiseToken<Result<any, Error>> =
+              const token: PromiseToken<Result<any, Error>> | undefined =
                      this._resolvers.get(id);
 
               if (token) {
@@ -466,9 +481,9 @@ export class ThreadPool {
         */
        private _csize(size?: number | string): number {
               return this._auto
-                     ? cpus().length / 2
+                     ? cpus().length
                      : typeof size === "number"
                        ? size
-                       : cpus().length / 2;
+                       : cpus().length;
        }
 }

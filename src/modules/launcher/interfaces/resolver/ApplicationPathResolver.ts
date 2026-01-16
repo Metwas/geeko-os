@@ -43,6 +43,7 @@ export class ApplicationPathResolver {
        ): string {
               const platformName: Platform =
                      options?.["platform"] ?? DEFAULT_PLATFORM_NAME;
+
               /** get platform specific path for the given application @see string name */
               return map[platformName];
        }

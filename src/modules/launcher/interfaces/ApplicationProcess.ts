@@ -18,12 +18,18 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import {
+       PROCESS_MESSAGE_CHANNEL,
        PROCESS_CLOSE_CHANNEL,
        PROCESS_ERROR_CHANNEL,
-       PROCESS_MESSAGE_CHANNEL,
 } from "../../../global/application.constants";
+
+import {
+       SpawnOptionsWithoutStdio,
+       ChildProcess,
+       spawn,
+} from "node:child_process";
+
 import { SystemProcessExecutable } from "../../../types/SystemProcessExecutable";
-import { ChildProcess, spawn } from "node:child_process";
 import { LogService } from "@geeko/log";
 import { EventEmitter } from "tseep";
 
@@ -41,7 +47,7 @@ export interface IApplicationProcess {
         * @public
         * @type {Number}
         */
-       pid(): number;
+       pid(): number | undefined;
 
        /**
         * Optional application name, otherwise returns the processId
@@ -80,7 +86,7 @@ export class ApplicationProcess
         * Underlying @see ChildProcess execute function
         *
         * @public
-        * @type {():ChildProcess}
+        * @type {Function}
         */
        public static readonly PROCESS_SPAWN_FN = spawn;
 
@@ -96,9 +102,10 @@ export class ApplicationProcess
               executable: SystemProcessExecutable,
               options?: { name?: string; logger?: LogService },
        ): ApplicationProcess => {
-              const command: string = executable["executablePath"];
-              const flags: Array<string> = executable["arguments"];
-              const processOptions: any = executable["options"];
+              const flags: Array<string> | undefined = executable.arguments;
+              const command: string = executable.executablePath;
+              const processOptions: SpawnOptionsWithoutStdio | undefined =
+                     executable.options;
 
               return new ApplicationProcess(
                      ApplicationProcess.PROCESS_SPAWN_FN(
@@ -127,7 +134,7 @@ export class ApplicationProcess
                      this._name = options["name"];
               }
 
-              this.setLogger(options?.["logger"]);
+              this._logger = options?.logger;
               // attach process event channels
               this._bindProcessEvents();
        }
@@ -149,7 +156,7 @@ export class ApplicationProcess
         * @public
         * @type {Number}
         */
-       public pid(): number {
+       public pid(): number | undefined {
               return this.childProcess.pid;
        }
 
@@ -158,7 +165,7 @@ export class ApplicationProcess
         * @returns
         */
        public ppid(): number | undefined {
-              return this.childProcess["ppid"];
+              return this.childProcess.pid;
        }
 
        /**
@@ -188,12 +195,7 @@ export class ApplicationProcess
         * @public
         * @param {LogService} logger
         */
-       private _logger: LogService = null;
-       public setLogger(logger: LogService): void {
-              if (logger) {
-                     this._logger = logger;
-              }
-       }
+       private _logger: LogService | undefined = void 0;
 
        /**
         * @see ChildProcess event bind helper
@@ -242,9 +244,10 @@ export class ApplicationProcess
        public close(signal: NodeJS.Signals = "SIGKILL"): void {
               if (this.childProcess && this.childProcess.killed === false) {
                      this.childProcess.kill(signal);
+                     const ppid: number | undefined = this.ppid();
 
-                     if (this.ppid()) {
-                            process.kill(this.ppid(), signal);
+                     if (ppid) {
+                            process.kill(ppid, signal);
                      }
               }
        }

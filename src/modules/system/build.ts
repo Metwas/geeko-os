@@ -47,6 +47,10 @@ export const isLinux = (platform?: string): boolean => {
        return (platform ? platform : process.platform).indexOf("linux") > -1;
 };
 
+export type JsonLike = {
+       [key: string]: any;
+};
+
 /**
  * List of possible Raspberry pi model identifiers
  *
@@ -54,7 +58,7 @@ export const isLinux = (platform?: string): boolean => {
  * @public
  * @type {Object}
  */
-export const PI_MODEL_IDS = {
+export const PI_MODEL_IDS: JsonLike = {
        BCM2708: "Pi",
        BCM2709: "Pi",
        BCM2710: "Pi",
@@ -72,7 +76,7 @@ export const PI_MODEL_IDS = {
  * @public
  * @returns {String}
  */
-export const isRaspbian = (): string => {
+export const isRaspbian = (): string | undefined => {
        try {
               const info: string = readFileSync("/proc/cpuinfo", {
                      encoding: "utf8",
@@ -82,7 +86,7 @@ export const isRaspbian = (): string => {
 
               return PI_MODEL_IDS[hardwareId];
        } catch (error) {
-              return null;
+              return void 0;
        }
 };
 
@@ -91,7 +95,9 @@ export const isRaspbian = (): string => {
  *
  * @returns {IOSProvider}
  */
-export const getSystemProvider = (factory?: () => IOSProvider): IOSProvider => {
+export const getSystemProvider = (
+       factory?: () => IOSProvider,
+): IOSProvider | undefined => {
        if (typeof factory === "function") {
               return factory();
        }
@@ -101,7 +107,7 @@ export const getSystemProvider = (factory?: () => IOSProvider): IOSProvider => {
        if (isWindows(platform) === true) {
               return new WindowsProvider();
        } else if (isLinux(platform) === true) {
-              const raspbian: string = isRaspbian();
+              const raspbian: string | undefined = isRaspbian();
 
               if (raspbian) {
                      return new RaspbianProvider(raspbian);
@@ -117,4 +123,5 @@ export const getSystemProvider = (factory?: () => IOSProvider): IOSProvider => {
  * @public
  * @type {IOSProvider}
  */
-export const GLOBAL_SYSTEM_PROVIDER: IOSProvider = getSystemProvider();
+export const GLOBAL_SYSTEM_PROVIDER: IOSProvider | undefined =
+       getSystemProvider();

@@ -72,7 +72,6 @@ export class LinuxProvider extends CoreOSProvider implements ILinuxProvider {
         */
        public constructor() {
               super(platform());
-              // set common platform name
               this._platform = "linux";
        }
 
@@ -139,9 +138,12 @@ export class LinuxProvider extends CoreOSProvider implements ILinuxProvider {
         */
        public async whereIs(
               options: SystemSearchOptions,
-       ): Promise<CollectionMap<string>> {
-              const paths: CollectionMap<string> = await whereIs(this, options);
-              // return the first result
+       ): Promise<CollectionMap<string> | undefined> {
+              const paths: CollectionMap<string> | undefined = await whereIs(
+                     this,
+                     options,
+              );
+
               return Promise.resolve(paths);
        }
 
@@ -199,7 +201,7 @@ export class LinuxProvider extends CoreOSProvider implements ILinuxProvider {
               processOrId: string | number,
               signal?: NodeJS.Signals,
        ): Promise<Buffer> {
-              let command: string = null;
+              let command: string | undefined = void 0;
               let argument: Array<string> = [];
 
               if (typeof processOrId === "number") {
@@ -237,9 +239,10 @@ export class LinuxProvider extends CoreOSProvider implements ILinuxProvider {
               path: string,
               options?: ApplicationLaunchOptions,
        ): string {
-              const entryPoint: string = options?.["entryPoint"]
-                     ? options?.["entryPoint"] + " "
+              const entryPoint: string = options?.directory
+                     ? options.directory + " "
                      : "";
+
               return `${entryPoint}${this.resolvePath(path)}`;
        }
 

@@ -138,7 +138,7 @@ export const isDirectory = (path: string): boolean => {
        try {
               return lstatSync(path).isDirectory() === true;
        } catch (error) {
-              return void 0;
+              return false;
        }
 };
 
@@ -176,7 +176,8 @@ export const directory = (
                             directoryPath.split(sep);
 
                      while (directories.length > 0) {
-                            const directoryName: string = directories.pop();
+                            const directoryName: string | undefined =
+                                   directories.pop();
 
                             if (directoryName) {
                                    return directoryName;
@@ -294,9 +295,7 @@ export const getDirectoryFiles = (
                                                                });
                                                         }
                                                  } catch (error) {
-                                                        console.error(
-                                                               error.message,
-                                                        );
+                                                        console.error(error);
                                                  }
                                           }
 
@@ -317,13 +316,13 @@ export const getDirectoryFiles = (
  * @param {Readable} stream
  * @returns {string}
  */
-export const readAsString = (stream: Readable): Promise<string> => {
+export const readAsString = (stream: Readable): Promise<string | void> => {
        if (!stream) {
-              return Promise.resolve(null);
+              return Promise.resolve(void 0);
        }
 
        return new Promise((resolve, _) => {
-              let buffer: string = "";
+              let buffer: string | undefined = "";
 
               stream.on("data", (chunk: string) => {
                      buffer += chunk;
@@ -331,8 +330,8 @@ export const readAsString = (stream: Readable): Promise<string> => {
 
               stream.once("error", () => {
                      stream.destroy();
-                     buffer = null;
-                     resolve(null);
+                     buffer = void 0;
+                     resolve(void 0);
               });
 
               stream.once("end", () => {
@@ -348,10 +347,12 @@ export const readAsString = (stream: Readable): Promise<string> => {
  * @param {String} filePath
  * @returns {String}
  */
-export const buildPath = (filePath: string): string => {
+export const buildPath = (filePath: string): string | undefined => {
        if (typeof filePath === "string") {
               return resolve(directory(filePath), filePath);
        }
+
+       return void 0;
 };
 
 /**
@@ -390,8 +391,8 @@ export const deleteFileSync = (path: string): void => {
  */
 export const deleteFile = (path: string): Promise<void> => {
        return new Promise((resolve, reject) => {
-              unlink(path, (error: Error) => {
-                     error ? reject(error) : resolve(null);
+              unlink(path, (error: Error | null) => {
+                     error ? reject(error) : resolve(void 0);
               });
        });
 };

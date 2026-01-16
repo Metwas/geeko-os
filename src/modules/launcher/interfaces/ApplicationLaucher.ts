@@ -22,6 +22,7 @@ import {
        PROCESS_ERROR_CHANNEL,
        PROCESS_MESSAGE_CHANNEL,
 } from "../../../global/application.constants";
+
 import { ApplicationLaunchOptions } from "../../../types/ApplicationLaunchOptions";
 import { ApplicationSearchResult } from "../../../types/ApplicationSearchResult";
 import { SystemProcessExecutable } from "../../../types/SystemProcessExecutable";
@@ -68,6 +69,7 @@ export class ApplicationLauncher {
        public constructor(logger?: LogService, os?: CoreOSProvider) {
               this.system = os ?? (GLOBAL_SYSTEM_PROVIDER as CoreOSProvider);
               this.resolver = new ApplicationResolver(this.system, logger);
+
               this.logger = logger;
        }
 
@@ -85,7 +87,7 @@ export class ApplicationLauncher {
         * @public
         * @private
         */
-       protected system: CoreOSProvider = null;
+       protected system: CoreOSProvider;
 
        /**
         * Map of all launched application instances
@@ -107,7 +109,7 @@ export class ApplicationLauncher {
         * @protected
         * @type {ApplicationResolver}
         */
-       protected resolver: ApplicationResolver = null;
+       protected resolver: ApplicationResolver;
 
        /**
         * Setting to enable a @see ApplicationProcess instance limit
@@ -125,7 +127,7 @@ export class ApplicationLauncher {
         * @protected
         * @type {LogService}
         */
-       protected logger: LogService = null;
+       protected logger: LogService | undefined = void 0;
 
        /**
         * Spawns a process from the specified executable file path
@@ -136,14 +138,14 @@ export class ApplicationLauncher {
         */
        public async launch(
               options: ApplicationLaunchOptions,
-       ): Promise<ApplicationProcess> {
+       ): Promise<ApplicationProcess | void> {
               try {
                      if (this.canCreate() === true) {
-                            const executable: ApplicationSearchResult =
+                            const executable: ApplicationSearchResult | void =
                                    await this.getExecutable(options);
 
                             if (!executable?.found) {
-                                   return Promise.resolve(null);
+                                   return void 0;
                             }
 
                             this.dbg(
@@ -166,8 +168,13 @@ export class ApplicationLauncher {
                             return Promise.resolve(instance);
                      }
               } catch (error) {
-                     this.dbg(error.message);
-                     return null;
+                     this.dbg(
+                            typeof error === "string"
+                                   ? error
+                                   : (error as any)?.message,
+                     );
+
+                     return void 0;
               }
        }
 
@@ -357,7 +364,7 @@ export class ApplicationLauncher {
         */
        protected async getExecutable(
               options: ApplicationLaunchOptions,
-       ): Promise<ApplicationSearchResult> {
+       ): Promise<ApplicationSearchResult | void> {
               return await this.resolver.resolve(options);
        }
 
@@ -372,20 +379,17 @@ export class ApplicationLauncher {
                      const existing = this.instances.get(
                             instance.applicationName(),
                      );
-                     const options: ApplicationLaunchOptions = existing.options;
+                     const options: ApplicationLaunchOptions | undefined =
+                            existing?.options;
 
                      if (existing && this.removeInstance(instance)) {
                             this.dbg(
                                    `Application: ${instance.applicationName()} closed`,
                             );
+
                             /** TODO: ensure close was not a force close before attempting to restart application */
                             if (options?.restartOnExit === true) {
-                                   if (instance["__timeout__"]) {
-                                          clearTimeout(instance["__timeout__"]);
-                                   }
-
-                                   instance["__timeout__"] = setTimeout(() => {
-                                          clearTimeout(instance["__timeout__"]);
+                                   setTimeout(() => {
                                           this.launch(options);
                                    }, 1000);
                             }

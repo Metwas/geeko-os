@@ -22,11 +22,11 @@ const { LogService } = require("@geeko/log");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-const chromium = new ChromiumLauncher(new LogService());
+const chromium = new ChromiumLauncher(new LogService({ title: "chromium" }));
 
 chromium.launch({
-       url: "https://www.youtube.com/embed/hOgVAYpHPCc?si=Zd1szX4noUjNjFqj&autoplay=1&mute=1",
-       exclusive: true,
+       url: "https://www.youtube.com/embed/KLuTLF3x9sA?si=7Jlj_GIZc1m9nDQZ",
        restartOnExit: true,
+       exclusive: true,
        kiosk: true,
 });

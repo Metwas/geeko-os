@@ -4,6 +4,7 @@
               "target": "esnext",
               "outDir": "dist",
               "lib": ["ESNext"],
+              "strict": true,
               "declaration": true,
               "removeComments": true,
        },

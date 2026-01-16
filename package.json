@@ -28,7 +28,6 @@
        "dependencies": {
               "@geeko/core": "^1.1.0",
               "@geeko/log": "^1.1.0",
-              "@geeko/tasks": "^1.5.0",
-              "chrome-remote-interface": "^0.33.3"
+              "@geeko/tasks": "^1.5.0"
        }
 }
