@@ -23,6 +23,6 @@ const { sleep } = require("@geeko/tasks");
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 parentPort.on("message", async (data) => {
-       await sleep(2000);
+       await sleep(200);
        parentPort.postMessage(data);
 });

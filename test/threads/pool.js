@@ -37,13 +37,13 @@ const logger = new LogService({
 const pool = new ThreadPool(
        {
               file: resolve(__dirname, "./workers/sleep.js"),
-              size: 8,
+              size: "auto",
        },
        logger,
 );
 
 const watchMode = process.argv.indexOf("--ws") > -1;
-const length = 25;
+const length = 55;
 let index = 0;
 
 let promises = [];
