@@ -46,18 +46,16 @@ export class FsDetector extends EventEmitter {
        /**
         * @public
         * @param {Watcher<FSWatcher>} watcher
-        * @param {LogService} logger
         * @param {DetectorOptions} options
         */
        public constructor(
               watcher?: Watcher<FSWatcher>,
-              logger?: LogService,
               options?: DetectorOptions,
        ) {
               super();
 
               this._watcher = watcher ?? (watch as any);
-              this._logger = logger;
+              this._logger = options?.logger;
        }
 
        /**

@@ -15,6 +15,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+import { LogService } from "@geeko/log";
+
+/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
 /**
  * @see FsDetector construction options
  *
@@ -22,4 +28,5 @@
  */
 export type DetectorOptions = {
        workers?: boolean | number;
+       logger?: LogService;
 };
