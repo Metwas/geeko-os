@@ -43,7 +43,7 @@ const pool = new ThreadPool(
 );
 
 const watchMode = process.argv.indexOf("--ws") > -1;
-const length = 55;
+const length = 5;
 let index = 0;
 
 let promises = [];
