@@ -104,8 +104,12 @@ export class WindowsProvider extends CoreOSProvider {
         */
        public async whereIs(
               options: SystemSearchOptions,
-       ): Promise<CollectionMap<string>> {
-              const paths: CollectionMap<string> = await whereIs(this, options);
+       ): Promise<CollectionMap<string> | undefined> {
+              const paths: CollectionMap<string> | undefined = await whereIs(
+                     this,
+                     options,
+              );
+
               // return the first result
               return Promise.resolve(paths);
        }
@@ -163,12 +167,14 @@ export class WindowsProvider extends CoreOSProvider {
        public kill(
               processOrId: string | number | ChildProcess,
        ): Promise<Buffer> {
+              const type: string = typeof processOrId;
+
               return this.execute(WINDOWS_TASK_TERMINATE, [
                      "/pid",
                      String(
-                            typeof processOrId["pid"] === "number"
-                                   ? processOrId["pid"]
-                                   : processOrId,
+                            type === "number" || type === "string"
+                                   ? processOrId
+                                   : (processOrId as any)?.pid,
                      ),
                      "/f",
                      "/t",
@@ -210,10 +216,11 @@ export class WindowsProvider extends CoreOSProvider {
               path: string,
               options?: ApplicationLaunchOptions,
        ): string {
-              const entryPoint: string = options?.["entryPoint"]
-                     ? options?.["entryPoint"] + " "
+              const entryPoint: string = options?.directory
+                     ? options.directory + " "
                      : "";
-              return `${entryPoint}\"${this.resolvePath(path, false)}\" ${(options?.["flags"] || []).join(" ")}`;
+
+              return `${entryPoint}\"${this.resolvePath(path, false)}\" ${(options?.flags || []).join(" ")}`;
        }
 
        /**

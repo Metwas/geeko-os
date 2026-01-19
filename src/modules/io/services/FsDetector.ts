@@ -28,6 +28,7 @@ import { stat, readdir, open, FileHandle } from "node:fs/promises";
 import { FileWatchOptions } from "../../../types/FileWatchOptions";
 import { DetectorOptions } from "../../../types/DetectorOptions";
 import { extension, filename } from "../../../tools/io";
+import { WatcherRef } from "../../../types/WatcherRef";
 import { Watcher } from "../../../types/FileWatcher";
 import { FSWatcher, Stats, watch } from "node:fs";
 import { LogService } from "@geeko/log";
@@ -55,7 +56,7 @@ export class FsDetector extends EventEmitter {
        ) {
               super();
 
-              this._watcher = watcher ?? watch;
+              this._watcher = watcher ?? (watch as any);
               this._logger = logger;
        }
 
@@ -65,8 +66,7 @@ export class FsDetector extends EventEmitter {
         * @private
         * @type {Map<FSWatcher, String>}
         */
-       private _watchers: Map<string, { watcher: FSWatcher; root: string }> =
-              new Map();
+       private _watchers: Map<string, WatcherRef> = new Map();
 
        /**
         * Underlying @see Watcher factory function reference
@@ -74,7 +74,7 @@ export class FsDetector extends EventEmitter {
         * @private
         * @type {Watcher}
         */
-       private _watcher: Watcher<FSWatcher> = null;
+       private _watcher: Watcher<FSWatcher> | undefined = void 0;
 
        /**
         * Initial root directory or file being observed
@@ -82,7 +82,7 @@ export class FsDetector extends EventEmitter {
         * @private
         * @type {String}
         */
-       private _root: string = null;
+       private _root: string | undefined = void 0;
 
        /**
         * Log provider
@@ -90,7 +90,7 @@ export class FsDetector extends EventEmitter {
         * @private
         * @type {LogService}
         */
-       private _logger: LogService = null;
+       private _logger: LogService | undefined = void 0;
 
        /**
         * Initializes the @see FSWatcher & emits file events based on the IO changes
@@ -103,13 +103,18 @@ export class FsDetector extends EventEmitter {
        public async watch(options: FileWatchOptions): Promise<void> {
               const self: FsDetector = this;
 
+              if (!this._watcher) {
+                     return void 0;
+              }
+
               const fileOrDirectory: string = options?.path;
               const recursive: boolean =
                      options?.recursive === false ? false : true;
 
               const stats: Stats = await stat(fileOrDirectory);
               const level: number = options.level ?? 0;
-              let root: string = options.root;
+
+              let root: string | undefined = options.root;
 
               if (stats.isDirectory()) {
                      root = root ?? fileOrDirectory;
@@ -154,14 +159,14 @@ export class FsDetector extends EventEmitter {
                                    this._logger?.error(
                                           typeof error === "string"
                                                  ? error
-                                                 : error.message,
+                                                 : (error as any)?.message,
                                    );
                             }
                      }
               }
 
               if (this._watchers.has(fileOrDirectory) === false) {
-                     let lastChange: number = null;
+                     let lastChange: number | undefined = void 0;
 
                      const type: string = stats.isFile()
                             ? "file"
@@ -205,7 +210,7 @@ export class FsDetector extends EventEmitter {
                                                         /** Check if file has been modified */
                                                         if (
                                                                lastChange ===
-                                                                      null ||
+                                                                      void 0 ||
                                                                modifiedAt >
                                                                       lastChange
                                                         ) {
@@ -331,7 +336,10 @@ export class FsDetector extends EventEmitter {
                                                                                     typeof error ===
                                                                                            "string"
                                                                                            ? error
-                                                                                           : error.message,
+                                                                                           : (
+                                                                                                    error as any
+                                                                                             )
+                                                                                                    ?.message,
                                                                              );
                                                                       }
                                                                }
@@ -360,7 +368,8 @@ export class FsDetector extends EventEmitter {
                                           this._logger?.error(
                                                  typeof error === "string"
                                                         ? error
-                                                        : error.message,
+                                                        : (error as any)
+                                                                 ?.message,
                                           );
                                    }
                             },
@@ -389,9 +398,14 @@ export class FsDetector extends EventEmitter {
         */
        public unwatch(path: string): void {
               if (this._watchers.has(path) === true) {
-                     const { watcher, root } = this._watchers.get(path);
+                     const watchers: WatcherRef | undefined =
+                            this._watchers.get(path);
 
-                     watcher.close();
+                     if (!watchers) {
+                            return void 0;
+                     }
+
+                     watchers.watcher.close();
                      /** Finally remove from watch list */
                      this._watchers.delete(path);
               }
@@ -419,7 +433,7 @@ export class FsDetector extends EventEmitter {
         * @param {String} path
         * @returns {String}
         */
-       protected getAbsoluteRoot(path: string): string {
+       protected getAbsoluteRoot(path: string): string | undefined {
               if (this._watchers.has(path) === true) {
                      return this._watchers.get(path)?.root;
               }

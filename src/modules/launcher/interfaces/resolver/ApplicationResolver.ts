@@ -17,13 +17,14 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { ApplicationSearchOptions } from "../../../../types/ApplicationSearchOptions";
-import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOptions";
 import {
+       SystemSearchOptions,
        CoreOSProvider,
        SearchScope,
-       SystemSearchOptions,
 } from "../../../system";
+
+import { ApplicationSearchOptions } from "../../../../types/ApplicationSearchOptions";
+import { ApplicationLaunchOptions } from "../../../../types/ApplicationLaunchOptions";
 import { ApplicationSearchResult } from "../../../../types/ApplicationSearchResult";
 import { ApplicationPlatformMap } from "../../../../types/ApplicationPlatformMap";
 import { SystemOperationOptions } from "../../../../types/SystemOperationOptions";
@@ -73,17 +74,25 @@ export class ApplicationResolver {
         */
        public async resolve(
               options: ApplicationLaunchOptions,
-       ): Promise<ApplicationSearchResult> {
+       ): Promise<ApplicationSearchResult | void> {
               if (!options?.app) {
-                     return;
+                     return void 0;
               }
 
               /** Validate provided @see executablePath if provided to ensure the application specified exists */
-              const hasExisting: boolean = this.isFile(options?.executablePath);
+              let hasExisting: boolean =
+                     typeof options?.executablePath === "string"
+                            ? this.isFile(options.executablePath)
+                            : false;
 
-              if (hasExisting === true) {
+              if (
+                     hasExisting === true &&
+                     typeof options?.executablePath === "string"
+              ) {
                      return {
-                            application: filename(options.executablePath),
+                            application: filename(
+                                   options.executablePath as any,
+                            ),
                             path: options.executablePath,
                             found: true,
                      };
@@ -109,16 +118,17 @@ export class ApplicationResolver {
               const applicationNames: Array<string> = Array.isArray(name)
                      ? name
                      : [name];
+
               const length: number = applicationNames.length;
               let index: number = 0;
 
               for (; index < length; index++) {
                      const name: string = applicationNames[index];
-                     const searchResults: ApplicationSearchResult =
+                     const searchResults: ApplicationSearchResult | undefined =
                             await this.find({ name, paths });
 
                      // scan for the given application name against the list of common paths
-                     if (searchResults.found === true) {
+                     if (searchResults?.found === true) {
                             // return first result
                             return {
                                    path: searchResults.path,
@@ -140,13 +150,13 @@ export class ApplicationResolver {
        protected async resolveMap(
               map: ApplicationPlatformMap,
               paths: Array<string>,
-       ): Promise<ApplicationSearchResult> {
+       ): Promise<ApplicationSearchResult | void> {
               const keys: Array<string> = Object.keys(map || {});
               const length: number = keys.length;
               let index: number = 0;
 
               const abortController: AbortController = new AbortController();
-              let preferred: ApplicationSearchResult = null;
+              let preferred: ApplicationSearchResult | undefined = void 0;
               let available: Array<any> = [];
 
               /** @see EventEmitter used as key to release the @see AsyncLock on each scan operation */
@@ -178,50 +188,58 @@ export class ApplicationResolver {
                                    highestWeight = weight;
                             }
 
-                            const promise: Promise<ApplicationSearchResult> =
-                                   new Promise(async (resolve, _) => {
-                                          const asyncLock: AsyncLock<any> =
-                                                 new AsyncLock<any>([
-                                                        new KeyEventAdaptor(
-                                                               asyncKey,
-                                                        ),
-                                                 ]);
-                                          await asyncLock.promise();
+                            const promise: Promise<
+                                   ApplicationSearchResult | undefined
+                            > = new Promise(async (resolve, _) => {
+                                   const asyncLock: AsyncLock<any> =
+                                          new AsyncLock<any>([
+                                                 new KeyEventAdaptor(asyncKey),
+                                          ]);
+                                   await asyncLock.promise();
 
-                                          resolve(
-                                                 Object.assign(
-                                                        await this.find({
-                                                               name,
-                                                               paths,
-                                                               abortOptions: {
-                                                                      abort: abortController,
-                                                               },
-                                                        }),
-                                                        {
-                                                               application:
-                                                                      application,
-                                                        },
-                                                 ),
-                                          );
+                                   const results:
+                                          | ApplicationSearchResult
+                                          | undefined = await this.find({
+                                          name,
+                                          paths,
+                                          abortOptions: {
+                                                 abort: abortController,
+                                          },
                                    });
 
-                            promise.then((result: ApplicationSearchResult) => {
-                                   const { application, found } = result;
-
-                                   if (!found) {
-                                          return;
-                                   }
-
-                                   const weight: number = application["weight"];
-
-                                   if (weight >= highestWeight) {
-                                          abortController.abort();
-                                          // preferred application - resolve all other promises and cancel all file scan operations
-                                          preferred = result;
-                                   } else {
-                                          available.push(result);
-                                   }
+                                   resolve(
+                                          results
+                                                 ? Object.assign(results, {
+                                                          application,
+                                                   })
+                                                 : void 0,
+                                   );
                             });
+
+                            promise.then(
+                                   (
+                                          result:
+                                                 | ApplicationSearchResult
+                                                 | undefined,
+                                   ) => {
+                                          if (!result?.found) {
+                                                 return;
+                                          }
+
+                                          const { application } = result;
+
+                                          const weight: number =
+                                                 application.weight;
+
+                                          if (weight >= highestWeight) {
+                                                 abortController.abort();
+                                                 // preferred application - resolve all other promises and cancel all file scan operations
+                                                 preferred = result;
+                                          } else {
+                                                 available.push(result);
+                                          }
+                                   },
+                            );
 
                             promises.push(promise);
                      } catch (error) {}
@@ -252,6 +270,10 @@ export class ApplicationResolver {
                      }
               }
 
+              if (!preferred) {
+                     return void 0;
+              }
+
               return this.flattenApplicationResult(preferred);
        }
 
@@ -264,7 +286,7 @@ export class ApplicationResolver {
         */
        protected async find(
               options: ApplicationSearchOptions,
-       ): Promise<ApplicationSearchResult> {
+       ): Promise<ApplicationSearchResult | undefined> {
               const result: ApplicationSearchResult = {
                      application: {},
                      found: false,
@@ -285,11 +307,14 @@ export class ApplicationResolver {
               for (; index < length; index++) {
                      const directory: string = paths[index];
                      /** Begin a @see IOSProvider object scan */
-                     const results: CollectionMap<string> = await this.scan(
-                            { name, directory, extension, scope },
-                            abortOptions,
-                     );
-                     const executablePaths: Array<string> = results?.[name];
+                     const results: CollectionMap<string> | undefined =
+                            await this.scan(
+                                   { name, directory, extension, scope },
+                                   abortOptions,
+                            );
+
+                     const executablePaths: Array<string> | undefined =
+                            results?.[name];
 
                      if (
                             Array.isArray(executablePaths) &&
@@ -317,10 +342,10 @@ export class ApplicationResolver {
        protected async scan(
               searchOptions: SystemSearchOptions,
               abortOptions?: SystemOperationOptions,
-       ): Promise<CollectionMap<string>> {
+       ): Promise<CollectionMap<string> | undefined> {
               const { name, directory, extension, scope } = searchOptions;
-
               this.dbg(`Scanning for: [${name}] in directory: [${directory}]`);
+
               return await this.systemProvider.whereIs({
                      abort: abortOptions?.["abort"],
                      extension: extension,

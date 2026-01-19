@@ -21,4 +21,4 @@
  * @public
  * @type {String}
  */
-export type Platform = "linux" | "windows" | "darwin";
+export type Platform = "linux" | "windows" | "darwin" | "";

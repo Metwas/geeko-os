@@ -1,7 +1,7 @@
 {
        "name": "@geeko/os",
        "version": "1.3.0",
-       "description": "[![License][license-image]][license-url] [![Downloads][downloads-image]][downloads-url]",
+       "description": "",
        "main": "./dist/main.js",
        "directories": {
               "test": "test"
@@ -16,7 +16,7 @@
               "url": "git+https://github.com/Metwas/geeko-os.git"
        },
        "author": "Metwas",
-       "license": "MIT",
+       "license": "GPL-2.0-only",
        "bugs": {
               "url": "https://github.com/Metwas/geeko-os/issues"
        },
@@ -28,7 +28,6 @@
        "dependencies": {
               "@geeko/core": "^1.1.0",
               "@geeko/log": "^1.1.0",
-              "@geeko/tasks": "^1.5.0",
-              "chrome-remote-interface": "^0.33.3"
+              "@geeko/tasks": "^1.5.0"
        }
 }

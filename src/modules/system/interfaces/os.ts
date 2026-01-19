@@ -76,9 +76,11 @@ export interface IOSProvider {
         *
         * @public
         * @param {SystemSearchOptions} options
-        * @returns {Promise<CollectionMap<string>>}
+        * @returns {Promise<CollectionMap<string> | undefined>}
         */
-       whereIs(options?: SystemSearchOptions): Promise<CollectionMap<string>>;
+       whereIs(
+              options?: SystemSearchOptions,
+       ): Promise<CollectionMap<string> | undefined>;
 
        /**
         * Installs the specified @see SystemModule optionally providing an installation provider
@@ -214,10 +216,17 @@ export abstract class CoreOSProvider
        /**
         * System platform identification
         *
+        * @protected
+        * @type {Platform}
+        */
+       protected _platform: Platform = "";
+
+       /**
+        * System platform identification
+        *
         * @public
         * @type {Platform}
         */
-       protected _platform: Platform = null;
        public platform(): Platform {
               return this._platform;
        }
@@ -255,11 +264,11 @@ export abstract class CoreOSProvider
         *
         * @public
         * @param {SystemSearchOptions} options
-        * @returns {Promise<CollectionMap<string>>}
+        * @returns {Promise<CollectionMap<string> | undefined>}
         */
        public abstract whereIs(
               options?: SystemSearchOptions,
-       ): Promise<CollectionMap<string>>;
+       ): Promise<CollectionMap<string> | undefined>;
 
        /**
         * Executes a system-level command
@@ -287,8 +296,8 @@ export abstract class CoreOSProvider
                      const buffer: Array<any> = [];
 
                      this.emit(SYSTEM_EXECUTE_EVENT, {
-                            processId: spawn["pid"],
-                            parentId: spawn["ppid"],
+                            processId: spawn.pid,
+                            parentId: process.pid,
                             command,
                      });
 
@@ -338,13 +347,9 @@ export abstract class CoreOSProvider
         *
         * @public
         * @param {String} path
-        * @param {Boolean} resolveSpaces
         * @returns {String}
         */
-       public resolvePath(
-              path: string,
-              resolveSpaces: boolean = false,
-       ): string {
+       public resolvePath(path: string): string {
               return path;
        }
 
@@ -390,8 +395,8 @@ export abstract class CoreOSProvider
         * @param {Array<String>} flags
         * @returns {Array<String>}
         */
-       public buildExecutableFlags(flags: Array<string>): Array<string> {
-              const normalized: Array<string> = Array.isArray(flags)
+       public buildExecutableFlags(flags?: Array<string>): Array<string> {
+              const normalized: Array<string | undefined> = Array.isArray(flags)
                      ? flags
                      : [flags];
               const length: number = normalized.length;
@@ -400,10 +405,13 @@ export abstract class CoreOSProvider
               let validated: Array<string> = [];
 
               for (; index < length; index++) {
-                     const flag: string = normalized[index];
+                     const flag: string | undefined = normalized[index];
 
                      /** Validate flag string */
-                     if (this.validateFlagString(flag) === true) {
+                     if (
+                            typeof flag === "string" &&
+                            this.validateFlagString(flag) === true
+                     ) {
                             validated.push(flag);
                      }
               }

@@ -40,6 +40,12 @@ export const CHROME_APPLICATION_MAP: ApplicationPlatformMap = {
               windows: "chrome.exe",
               darwin: null,
        },
+       brave: {
+              weight: 0.1,
+              linux: "brave",
+              windows: "brave.exe",
+              darwin: null,
+       },
        thorium: {
               weight: 1,
               linux: "thorium",

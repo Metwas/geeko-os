@@ -24,18 +24,26 @@ const { resolve } = require("node:path");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
+const logger = new LogService({
+       title: "Pool",
+       level:
+              process.argv.indexOf("--debug") > -1
+                     ? "debug"
+                     : process.argv.indexOf("--verbose") > -1
+                       ? "verbose"
+                       : "info",
+});
+
 const pool = new ThreadPool(
        {
               file: resolve(__dirname, "./workers/sleep.js"),
               size: "auto",
        },
-       new LogService({
-              level: "info",
-       }),
+       logger,
 );
 
 const watchMode = process.argv.indexOf("--ws") > -1;
-const length = 25;
+const length = 5;
 let index = 0;
 
 let promises = [];
@@ -49,9 +57,7 @@ for (; index < length; ++index) {
        const response = function (data) {
               if (data.ok === false) {
                      errors = errors + 1;
-                     console.error(`❌`, this.index);
-              } else {
-                     console.error(`✔️`, this.index);
+                     logger.error(`❌`, this.index);
               }
        }.bind({ index });
 
@@ -61,7 +67,7 @@ for (; index < length; ++index) {
 
 const watch = (pool) => {
        setInterval(() => {
-              console.log(
+              logger.info(
                      "Thread: " +
                             pool.size() +
                             " queue: " +
@@ -73,8 +79,9 @@ const watch = (pool) => {
 };
 
 Promise.all(promises).then(() => {
-       const end = performance.now();
-       console.log(`OK [${(end - start).toFixed(3)} ms]`);
+       const time = (performance.now() - start).toFixed(3);
+
+       logger.info(`✔️ [${time} ms]\r\n`);
 
        if (!watchMode) {
               process.exit(1);

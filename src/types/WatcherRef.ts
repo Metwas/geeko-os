@@ -15,11 +15,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-export * from "./interfaces/resolver/ApplicationPathResolver";
-export * from "./interfaces/resolver/ApplicationResolver";
-export * from "./interfaces/chromium/chromium.launcher";
-export * from "../../types/ApplicationLaunchOptions";
-export * from "../../global/application.constants";
-export * from "./interfaces/ApplicationLaucher";
-export * from "./interfaces/ApplicationProcess";
-export * from "./tools/connect";
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+import { FSWatcher } from "node:fs";
+
+/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+/**
+ * @see FsDetector watcher reference type
+ *
+ * @public
+ */
+export type WatcherRef = {
+       root: string | undefined;
+       watcher: FSWatcher;
+};

@@ -17,7 +17,6 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import * as remote from "chrome-remote-interface";
 import { sleep } from "@geeko/tasks";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
@@ -37,12 +36,12 @@ export const connectRemoteDebugger = async (options: {
 }): Promise<any> => {
        let retry: number = 0;
 
-       const connect = async function (options) {
+       const connect = async function (options: any) {
               let client: any = null;
 
               while (++retry <= MAX_RETRIES || !client) {
                      try {
-                            client = await remote(options);
+                            /** @TODO implement */
                      } catch (error) {
                             await sleep(1000 * Math.pow(retry, 2));
                      }

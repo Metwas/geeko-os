@@ -1,4 +1,7 @@
 # Geeko OS
+![image](./assets/hyper-banner.jpg)
+## _List of system level tools for the Geeko ecosystem_
+
 [![License][license-image]][license-url]
 [![Downloads][downloads-image]][downloads-url]
 

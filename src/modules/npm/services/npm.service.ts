@@ -102,9 +102,9 @@ export class NpmService extends EventEmitter {
         * @param {NpmModule} module
         * @returns {Promise<ModuleReport>}
         */
-       public install(module: NpmModule): Promise<ModuleReport> {
+       public install(module: NpmModule): Promise<ModuleReport | void> {
               if (!module?.name) {
-                     return Promise.resolve(null);
+                     return Promise.resolve(void 0);
               }
 
               const token: PromiseToken<ModuleReport> =
@@ -138,7 +138,7 @@ export class NpmService extends EventEmitter {
         */
        public async getPackageVersions(
               module: NpmModule,
-       ): Promise<Array<string>> {
+       ): Promise<Array<string> | void> {
               return await getNPMPackageVersions(module);
        }
 
@@ -150,7 +150,7 @@ export class NpmService extends EventEmitter {
         * @param {NpmModule | null} module
         * @returns {Promise<ModuleReport>}
         */
-       public update(module?: NpmModule): Promise<ModuleReport> {
+       public update(module?: NpmModule): Promise<ModuleReport | void> {
               return this.install(
                      module
                             ? module
@@ -260,7 +260,7 @@ export class NpmService extends EventEmitter {
         * @public
         * @returns {NpmModule}
         */
-       private _dequeue(): ModuleToken<ModuleReport> {
+       private _dequeue(): ModuleToken<ModuleReport> | undefined {
               return this._queue.pop();
        }
 
@@ -282,14 +282,18 @@ export class NpmService extends EventEmitter {
               clearTimeout(this._timer);
               this._busy = true;
 
-              const token: ModuleToken<ModuleReport> = this._dequeue();
-              const promise: PromiseToken<ModuleReport> = token["promise"];
-              const module: NpmModule = token["module"];
+              const token: ModuleToken<ModuleReport> | undefined =
+                     this._dequeue();
 
-              if (this.isValid(module)) {
+              const promise: PromiseToken<ModuleReport> | undefined =
+                     token?.promise;
+
+              const module: NpmModule | undefined = token?.module;
+
+              if (promise && token?.id && module && this.isValid(module)) {
                      if (this.logger) {
                             this.logger.info(
-                                   `[NPM] module ${module["name"]} Installing, token Id: ${token["id"]}`,
+                                   `[NPM] module ${module["name"]} Installing, token Id: ${token?.id}`,
                             );
                      }
 
@@ -336,10 +340,11 @@ export class NpmService extends EventEmitter {
         * @returns {Promise<Boolean>}
         */
        private async _downloadTarball(module: NpmModule): Promise<boolean> {
-              let filePath: string = null;
+              let filePath: string | undefined = void 0;
 
               try {
-                     const tarball: string = await getNPMPackageURL(module);
+                     const tarball: string | void =
+                            await getNPMPackageURL(module);
 
                      if (typeof tarball !== "string") {
                             if (this.logger) {
@@ -351,14 +356,22 @@ export class NpmService extends EventEmitter {
                             return false;
                      }
 
-                     if (isAbsolute(module.tarPath)) {
+                     if (module.tarPath && isAbsolute(module.tarPath)) {
                             filePath = module.tarPath;
-                     } else {
+                     } else if (module.tarPath) {
                             filePath = resolve(
                                    __dirname,
                                    "../../../../",
                                    module.tarPath,
                             );
+                     }
+
+                     if (!filePath) {
+                            this.logger?.error(
+                                   `[NPM] Invalid file path was provided`,
+                            );
+
+                            return false;
                      }
 
                      const directory: string = dirname(filePath);
@@ -380,9 +393,9 @@ export class NpmService extends EventEmitter {
                             createWriteStream(filePath),
                      );
               } catch (error) {
-                     if (this.logger) {
-                            this.logger.error(`[NPM] ${error.message}`);
-                     }
+                     this.logger?.error(
+                            `[NPM] ${typeof error === "string" ? error : (error as any)?.message}`,
+                     );
 
                      /** Remove file on error if defined */
                      filePath && unlinkSync(filePath);
@@ -407,7 +420,7 @@ export class NpmService extends EventEmitter {
                             },
                      );
 
-                     let buffer: Array<string> = [];
+                     let buffer: Array<string> | undefined = [];
 
                      const onClose: any = (code: number) => {
                             const valid: boolean = code === 0;
@@ -417,9 +430,11 @@ export class NpmService extends EventEmitter {
                                           ? NPM_MESSAGE_CHANNEL
                                           : NPM_ERROR_CHANNEL,
                                    {
-                                          message: Buffer.from(
-                                                 buffer.join(""),
-                                          ).toString(),
+                                          message:
+                                                 buffer &&
+                                                 Buffer.from(
+                                                        buffer.join(""),
+                                                 ).toString(),
                                    },
                             );
 
@@ -428,17 +443,20 @@ export class NpmService extends EventEmitter {
 
                      _process.on("exit", onClose);
 
-                     // reject on any std error outputs
-                     _process.stderr.on("data", (data: string) => {
-                            _process.kill();
-                            buffer = null;
-                            resolve(false);
-                     });
+                     if (_process.stderr) {
+                            // reject on any std error outputs
+                            _process.stderr.on("data", (data: string) => {
+                                   _process.kill();
+                                   buffer = void 0;
+                                   resolve(false);
+                            });
+                     }
 
-                     // emit progress globally
-                     _process.stdout.on("data", (data: string) => {
-                            buffer.push(data);
-                     });
+                     if (_process.stdout) {
+                            _process.stdout.on("data", (data: string) => {
+                                   buffer?.push(data);
+                            });
+                     }
               });
        }
 }
@@ -450,14 +468,16 @@ export class NpmService extends EventEmitter {
  * @param {NpmModule} module
  * @returns {Promise<String>}
  */
-export const getNPMPackageURL = async (module: NpmModule): Promise<string> => {
+export const getNPMPackageURL = async (
+       module: NpmModule,
+): Promise<string | void> => {
        try {
               const version: string = module.version ?? "latest";
               const metadataURL: string = `https://registry.npmjs.org/${module.name}${version ? "/" + version : ""}`;
               const buffer: string = await HTTPS_GET_ASYNC(metadataURL);
 
               if (typeof buffer !== "string") {
-                     return null;
+                     return void 0;
               }
 
               const metadata: any = JSON.parse(buffer);
@@ -469,7 +489,7 @@ export const getNPMPackageURL = async (module: NpmModule): Promise<string> => {
               /** return tarball package url */
               return metadata?.dist?.tarball;
        } catch (error) {
-              return null;
+              return void 0;
        }
 };
 
@@ -482,13 +502,13 @@ export const getNPMPackageURL = async (module: NpmModule): Promise<string> => {
  */
 export const getNPMPackageVersions = async (
        module: NpmModule,
-): Promise<Array<string>> => {
+): Promise<Array<string> | void> => {
        try {
               const metadataURL: string = `https://registry.npmjs.org/${module.name}`;
               const buffer: string = await HTTPS_GET_ASYNC(metadataURL);
 
               if (typeof buffer !== "string") {
-                     return null;
+                     return void 0;
               }
 
               const metadata: any = JSON.parse(buffer);
@@ -501,8 +521,8 @@ export const getNPMPackageVersions = async (
                      }
               }
 
-              return null;
+              return void 0;
        } catch (error) {
-              return null;
+              return void 0;
        }
 };

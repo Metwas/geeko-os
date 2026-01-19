@@ -18,9 +18,10 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import {
-       SearchScope,
        SystemSearchOptions,
+       SearchScope,
 } from "../interfaces/SystemSearchOptions";
+
 import { WINDOWS_DEFAULT_ROOT } from "../constants/windows.constants";
 import { LINUX_DEFAULT_ROOT } from "../constants/linux.constants";
 import { Stats, constants, statSync } from "node:fs";
@@ -41,7 +42,7 @@ import { CollectionMap } from "@geeko/core";
  */
 export const buildWindowsSearchOptions = (
        provider: IOSProvider,
-       files: Array<string>,
+       files: Array<string | undefined>,
        options?: SystemSearchOptions,
 ): Array<string> => {
        let search: Array<string> = [];
@@ -78,7 +79,7 @@ export const buildWindowsSearchOptions = (
  */
 export const buildLinuxSearchOptions = (
        provider: IOSProvider,
-       files: Array<string>,
+       files: Array<string | undefined>,
        options?: SystemSearchOptions,
 ): Array<string> => {
        let search: Array<string> = [];
@@ -120,7 +121,7 @@ export const buildLinuxSearchOptions = (
  * @returns {Array<String>}
  */
 export const mapFileExtensions = (
-       files: Array<string>,
+       files: Array<string | undefined>,
        extension: string,
 ): Array<string> => {
        const length: number = Array.isArray(files) ? files.length : 0;
@@ -131,6 +132,12 @@ export const mapFileExtensions = (
        let mapped: Array<string> = [];
 
        for (; index < length; index++) {
+              const file: string | undefined = files[index];
+
+              if (!file) {
+                     continue;
+              }
+
               mapped.push(
                      `${files[index] || "*"}${extension ? "." + extension : ""}`,
               );
@@ -171,9 +178,9 @@ export const isExecutable = (path: string): boolean => {
                      ) {
                             return true;
                      }
-
-                     return false;
               }
+
+              return false;
        } catch (error) {
               return false;
        }
@@ -187,7 +194,7 @@ export const isExecutable = (path: string): boolean => {
  * @param {SearchScope} scope
  * @returns {Boolean}
  */
-const isValidPath = (line: string, scope: SearchScope): boolean => {
+const isValidPath = (line: string, scope?: SearchScope): boolean => {
        if (typeof line !== "string" || line.indexOf(":") > -1) {
               return false;
        }
@@ -205,26 +212,28 @@ const isValidPath = (line: string, scope: SearchScope): boolean => {
  * @private
  * @param {String} line
  * @param {Array<String>} keys
- * @param {SearchScope} scope
  * @returns {String}
  */
 const getOccociatedFile = (
        line: string,
-       keys: Array<string>,
-       scope: SearchScope,
-): string => {
+       keys: Array<string | undefined> | undefined,
+): string | undefined => {
+       if (Array.isArray(keys) === false) {
+              return void 0;
+       }
+
        const length: number = keys.length;
        let index: number = 0;
 
        for (; index < length; index++) {
-              const key: string = keys[index];
+              const key: string | undefined = keys[index];
 
               if (key && line.indexOf(key) > -1) {
                      return key;
               }
        }
 
-       return null;
+       return void 0;
 };
 
 /**
@@ -237,14 +246,16 @@ const getOccociatedFile = (
  */
 export const buildSearchResponse = (
        output: Array<string>,
-       input: { keys: Array<string>; options: SystemSearchOptions },
+       input: {
+              keys: Array<string | undefined> | undefined;
+              options: SystemSearchOptions | undefined;
+       },
 ): CollectionMap<string> => {
        output = Array.isArray(output) ? output : [output];
        const length: number = output.length;
        let index: number = 0;
 
-       let scope: SearchScope = input?.options?.scope;
-
+       let scope: SearchScope | undefined = input?.options?.scope;
        let results: CollectionMap<string> = {};
 
        for (; index < length; index++) {
@@ -253,11 +264,7 @@ export const buildSearchResponse = (
 
               if (valid) {
                      const file: string =
-                            getOccociatedFile(
-                                   line,
-                                   (input || {})["keys"],
-                                   scope,
-                            ) || "stdout";
+                            getOccociatedFile(line, input?.keys) || "stdout";
 
                      if (typeof file === "string") {
                             results[file] = results[file] || [];

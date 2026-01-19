@@ -71,12 +71,17 @@ export const resolveSpacedPath = (path: string): string => {
 
        let spaceRegex: RegExp = /[\(\)a-zA-Z0-9_]+( [\(\)a-zA-Z0-9_]+)+/g;
 
-       const spaces: Array<string> = local.match(spaceRegex);
+       const spaces: Array<string> | null = local.match(spaceRegex);
        const length: number = Array.isArray(spaces) ? spaces.length : 0;
        let index: number = 0;
 
        for (; index < length; index++) {
-              const space: string = spaces[index];
+              const space: string | undefined = spaces?.[index];
+
+              if (!space) {
+                     continue;
+              }
+
               // add quotes around the space directory
               local = local.replace(space, `"${space}"`);
        }

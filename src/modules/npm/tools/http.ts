@@ -44,7 +44,6 @@ export const HTTPS_GET_ASYNC = (url: string): Promise<string> => {
                      });
 
                      response.on("error", (error: Error) => {
-                            buffer = null;
                             reject(error);
                      });
               });

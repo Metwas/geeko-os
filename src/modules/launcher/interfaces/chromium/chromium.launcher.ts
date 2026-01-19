@@ -87,8 +87,10 @@ export class ChromiumLauncher extends ApplicationLauncher {
         */
        public async launch(
               options?: ChromeOptions,
-       ): Promise<ApplicationProcess> {
-              options = (options ?? {}) as any;
+       ): Promise<ApplicationProcess | void> {
+              options = options ?? {
+                     app: "",
+              };
 
               if (!options.app) {
                      options.app = this.map;
@@ -127,7 +129,7 @@ export class ChromiumLauncher extends ApplicationLauncher {
                      options.flags.push("--kiosk");
               }
 
-              const app: ApplicationProcess =
+              const app: ApplicationProcess | void =
                      await ApplicationLauncher.prototype.launch.call(
                             this,
                             Object.assign(options, {
@@ -135,7 +137,11 @@ export class ChromiumLauncher extends ApplicationLauncher {
                             }),
                      );
 
-              if (app && enableDebugProtocol) {
+              if (
+                     app &&
+                     enableDebugProtocol &&
+                     typeof options?.debugPort === "number"
+              ) {
                      this.remote = await ChromiumLauncher.connectDebugger({
                             port: options.debugPort,
                      });
