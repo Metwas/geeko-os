@@ -127,6 +127,7 @@ export const createWatcher = async (
               fileOrDirectory,
               async (eventType: string, fileName: string): Promise<void> => {
                      try {
+                            logger?.info(eventType);
                             const fullName: string = `${fileOrDirectory}/${fileName}`;
                             const canRead: FileHandle = await open(
                                    fullName,
@@ -134,6 +135,8 @@ export const createWatcher = async (
                             );
 
                             if (canRead) {
+                                   canRead.close();
+
                                    const stats: Stats | undefined =
                                           await stat(fullName);
 
@@ -201,6 +204,17 @@ export const createWatcher = async (
                                                         files.length;
                                                  let index: number = 0;
 
+                                                 if (length === 0) {
+                                                        /* Watch new directory as there are no files yet */
+                                                        self.watch({
+                                                               recursive: recursive,
+                                                               path: fullName,
+                                                               root: root,
+                                                        });
+
+                                                        return void 0;
+                                                 }
+
                                                  for (
                                                         ;
                                                         index < length;
@@ -223,6 +237,11 @@ export const createWatcher = async (
                                                                       if (
                                                                              stats.isDirectory()
                                                                       ) {
+                                                                             console.log(
+                                                                                    "Watching: ",
+                                                                                    root,
+                                                                                    file,
+                                                                             );
                                                                              self.watch(
                                                                                     {
                                                                                            recursive: recursive,
@@ -281,6 +300,33 @@ export const createWatcher = async (
                                    });
                             }
                      } catch (error) {
+                            const message: string =
+                                   typeof error === "string"
+                                          ? error
+                                          : (error as Error).message;
+
+                            if (
+                                   message.indexOf(
+                                          "no such file or directory",
+                                   ) > -1 &&
+                                   eventType === "rename"
+                            ) {
+                                   const fullName: string = `${fileOrDirectory}/${fileName}`;
+
+                                   self.emit(FILE_DELETE_EVENT, {
+                                          type: stats.isDirectory()
+                                                 ? "directory"
+                                                 : "file",
+                                          extension: extension(fullName),
+                                          name: filename(fullName),
+                                          size: stats.size,
+                                          path: fullName,
+                                          level: level,
+                                   });
+
+                                   return void 0;
+                            }
+
                             logger?.error(
                                    typeof error === "string"
                                           ? error
@@ -294,6 +340,11 @@ export const createWatcher = async (
               logger?.error(typeof error === "string" ? error : error?.message);
               /** @see unwatch file/folder if an error occured */
               self.unwatch(fileOrDirectory);
+       });
+
+       watchers.set(fileOrDirectory, {
+              watcher: _watcher,
+              root: root,
        });
 
        return _watcher;

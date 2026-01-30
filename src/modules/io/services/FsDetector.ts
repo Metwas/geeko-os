@@ -40,16 +40,12 @@ import { sep } from "node:path";
 export class FsDetector extends EventEmitter implements Detector {
        /**
         * @public
-        * @param {Watcher<FSWatcher>} watcher
         * @param {DetectorOptions} options
         */
-       public constructor(
-              watcher?: Watcher<FSWatcher>,
-              options?: DetectorOptions,
-       ) {
+       public constructor(options?: DetectorOptions) {
               super();
 
-              this._watcher = watcher ?? (watch as any);
+              this._watcher = options?.watcher ?? (watch as any);
               this._logger = options?.logger;
        }
 
@@ -139,19 +135,18 @@ export class FsDetector extends EventEmitter implements Detector {
                      return void 0;
               }
 
-              const fileOrDirectory: string = options?.path;
-              let root: string | undefined = options.root;
+              if (typeof options === "string") {
+                     options = {
+                            path: options,
+                            root: "",
+                     };
+              }
 
               /** @TODO push to @see Threadpool if configured - create file watch copy for master & worker */
-
               const watcher: FSWatcher | undefined = await createWatcher(
                      this,
                      options,
               );
-
-              if (watcher) {
-                     self._watchers.set(fileOrDirectory, { watcher, root });
-              }
        }
 
        /**

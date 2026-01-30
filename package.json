@@ -1,6 +1,7 @@
 {
        "name": "@geeko/os",
        "version": "1.3.0",
+       "type": "commonjs",
        "description": "",
        "main": "./dist/main.js",
        "directories": {
