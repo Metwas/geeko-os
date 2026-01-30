@@ -17,21 +17,16 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import {
-       FILE_CHANGE_EVENT,
-       FILE_CREATE_EVENT,
-       FILE_DELETE_EVENT,
-       FILE_UNWATCH_EVENT,
-} from "../../../global/file.events";
+import { FILE_UNWATCH_EVENT } from "../../../global/file.events";
 
-import { stat, readdir, open, FileHandle } from "node:fs/promises";
 import { FileWatchOptions } from "../../../types/FileWatchOptions";
 import { DetectorOptions } from "../../../types/DetectorOptions";
-import { extension, filename } from "../../../tools/io";
+import { createWatcher } from "../../../tools/detector";
 import { WatcherRef } from "../../../types/WatcherRef";
 import { Watcher } from "../../../types/FileWatcher";
-import { FSWatcher, Stats, watch } from "node:fs";
+import { FSWatcher, watch } from "node:fs";
 import { LogService } from "@geeko/log";
+import { Detector } from "./Detector";
 import { EventEmitter } from "tseep";
 import { sep } from "node:path";
 
@@ -42,7 +37,7 @@ import { sep } from "node:path";
  *
  * @public
  */
-export class FsDetector extends EventEmitter {
+export class FsDetector extends EventEmitter implements Detector {
        /**
         * @public
         * @param {Watcher<FSWatcher>} watcher
@@ -91,6 +86,46 @@ export class FsDetector extends EventEmitter {
        private _logger: LogService | undefined = void 0;
 
        /**
+        * Logger reference
+        *
+        * @public
+        * @returns {LogService}
+        */
+       public logger(): LogService | undefined {
+              return this._logger;
+       }
+
+       /**
+        * Filesystem watcher interface
+        *
+        * @public
+        * @returns {Watcher<FSWatcher> | undefined}
+        */
+       public watcher(): Watcher<FSWatcher> | undefined {
+              return this._watcher;
+       }
+
+       /**
+        * Map of tracked watched files/directories
+        *
+        * @public
+        * @returns {Map<string, WatcherRef>}
+        */
+       public watchers(): Map<string, WatcherRef> {
+              return this._watchers;
+       }
+
+       /**
+        * Initial root directory or file path being observed
+        *
+        * @public
+        * @returns {String | undefined}
+        */
+       public root(): string | undefined {
+              return this._root;
+       }
+
+       /**
         * Initializes the @see FSWatcher & emits file events based on the IO changes
         *
         * @public
@@ -105,270 +140,18 @@ export class FsDetector extends EventEmitter {
               }
 
               const fileOrDirectory: string = options?.path;
-
-              if (self._watchers.has(fileOrDirectory) === true) {
-                     return void 0;
-              }
-
-              /** @TODO push to @see Threadpool if configured */
-              
-              const recursive: boolean =
-                     options?.recursive === false ? false : true;
-
-              const stats: Stats = await stat(fileOrDirectory);
-              const level: number = options.level ?? 0;
-
               let root: string | undefined = options.root;
 
-              if (stats.isDirectory()) {
-                     root = root ?? fileOrDirectory;
+              /** @TODO push to @see Threadpool if configured - create file watch copy for master & worker */
 
-                     /** Watch each individual file changes if specified - @see recursive */
-                     const files: Array<string> = (await readdir(
-                            fileOrDirectory,
-                            {
-                                   recursive,
-                            },
-                     )) as Array<string>;
-
-                     const length: number = files.length;
-                     let index: number = 0;
-
-                     for (; index < length; ++index) {
-                            try {
-                                   const fileName: string = `${fileOrDirectory}${sep}${files[index]}`;
-                                   const istats: Stats = await stat(fileName);
-
-                                   const isFile = istats.isFile();
-
-                                   /** Skip if @see recursive & not of root if placed in another directory */
-                                   if (
-                                          isFile ||
-                                          (self.isRoot(root, fileName) &&
-                                                 recursive === false)
-                                   ) {
-                                          continue;
-                                   }
-
-                                   self.watch({
-                                          recursive: recursive,
-                                          level: level + 1,
-                                          path: fileName,
-                                          root: fileName,
-                                   });
-                            } catch (error) {
-                                   self._logger?.error(
-                                          typeof error === "string"
-                                                 ? error
-                                                 : (error as any)?.message,
-                                   );
-                            }
-                     }
-              }
-
-              let lastChange: number | undefined = void 0;
-
-              const type: string = stats.isFile()
-                     ? "file"
-                     : stats.isDirectory()
-                       ? "directory"
-                       : "";
-
-              self.emit(FILE_CREATE_EVENT, {
-                     name: filename(fileOrDirectory),
-                     path: fileOrDirectory,
-                     size: stats.size,
-                     level: level,
-                     type: type,
-                     root: root,
-              });
-
-              const watcher: FSWatcher = self._watcher(
-                     fileOrDirectory,
-                     async (
-                            eventType: string,
-                            fileName: string,
-                     ): Promise<void> => {
-                            try {
-                                   const fullName: string = `${fileOrDirectory}/${fileName}`;
-                                   const canRead: FileHandle = await open(
-                                          fullName,
-                                          "r",
-                                   );
-
-                                   if (canRead) {
-                                          const stats: Stats | undefined =
-                                                 await stat(fullName);
-
-                                          if (!stats) {
-                                                 return void 0;
-                                          }
-
-                                          if (stats.isFile()) {
-                                                 const modifiedAt: number =
-                                                        stats.mtime.getTime();
-                                                 /** Check if file has been modified */
-                                                 if (
-                                                        lastChange === void 0 ||
-                                                        modifiedAt > lastChange
-                                                 ) {
-                                                        self.emit(
-                                                               FILE_CHANGE_EVENT,
-                                                               {
-                                                                      root: this.absolute(
-                                                                             fullName,
-                                                                      ),
-                                                                      extension: extension(
-                                                                             fullName,
-                                                                      ),
-                                                                      name: filename(
-                                                                             fullName,
-                                                                      ),
-                                                                      size: stats.size,
-                                                                      path: fullName,
-                                                                      level: level,
-                                                                      type: "file",
-                                                               },
-                                                        );
-                                                 }
-
-                                                 lastChange = modifiedAt;
-                                          } else if (stats.isDirectory()) {
-                                                 root = self.absolute(fullName);
-
-                                                 /** Assume directory is new */
-                                                 if (
-                                                        self._watchers.has(
-                                                               fullName,
-                                                        ) === false
-                                                 ) {
-                                                        self.emit(
-                                                               FILE_CREATE_EVENT,
-                                                               {
-                                                                      name: filename(
-                                                                             fullName,
-                                                                      ),
-                                                                      type: "directory",
-                                                                      size: stats.size,
-                                                                      path: fullName,
-                                                                      level: level,
-                                                                      root: root,
-                                                               },
-                                                        );
-                                                 }
-
-                                                 /** Otherwise check for any newly added files if @see recursive is set  */
-                                                 if (recursive === true) {
-                                                        const files: Array<string> =
-                                                               (await readdir(
-                                                                      fullName,
-                                                                      {
-                                                                             recursive,
-                                                                      },
-                                                               )) as Array<string>;
-                                                        const length: number =
-                                                               files.length;
-                                                        let index: number = 0;
-
-                                                        for (
-                                                               ;
-                                                               index < length;
-                                                               ++index
-                                                        ) {
-                                                               try {
-                                                                      const file: string = `${fullName}${sep}${files[index]}`;
-                                                                      /** Add to watch list if not already added */
-                                                                      if (
-                                                                             self._watchers.has(
-                                                                                    file,
-                                                                             ) ===
-                                                                             false
-                                                                      ) {
-                                                                             const stats: Stats =
-                                                                                    await stat(
-                                                                                           file,
-                                                                                    );
-
-                                                                             if (
-                                                                                    stats.isDirectory()
-                                                                             ) {
-                                                                                    self.watch(
-                                                                                           {
-                                                                                                  recursive: recursive,
-                                                                                                  root: root,
-                                                                                                  path: file,
-                                                                                           },
-                                                                                    );
-                                                                             }
-
-                                                                             self.emit(
-                                                                                    FILE_CREATE_EVENT,
-                                                                                    {
-                                                                                           type: stats.isDirectory()
-                                                                                                  ? "directory"
-                                                                                                  : "file",
-                                                                                           extension: extension(
-                                                                                                  file,
-                                                                                           ),
-                                                                                           name: filename(
-                                                                                                  file,
-                                                                                           ),
-                                                                                           size: stats.size,
-                                                                                           level: level,
-                                                                                           path: file,
-                                                                                           root: root,
-                                                                                    },
-                                                                             );
-                                                                      }
-                                                               } catch (error) {
-                                                                      self._logger?.error(
-                                                                             typeof error ===
-                                                                                    "string"
-                                                                                    ? error
-                                                                                    : (
-                                                                                             error as any
-                                                                                      )
-                                                                                             ?.message,
-                                                                      );
-                                                               }
-                                                        }
-                                                 }
-                                          }
-                                   } else {
-                                          /** File or directory removed, therefore remove from watch list */
-                                          self.unwatch(fullName);
-
-                                          self.emit(FILE_DELETE_EVENT, {
-                                                 type: stats.isDirectory()
-                                                        ? "directory"
-                                                        : "file",
-                                                 extension: extension(fullName),
-                                                 name: filename(fullName),
-                                                 size: stats.size,
-                                                 path: fullName,
-                                                 level: level,
-                                          });
-                                   }
-                            } catch (error) {
-                                   self._logger?.error(
-                                          typeof error === "string"
-                                                 ? error
-                                                 : (error as any)?.message,
-                                   );
-                            }
-                     },
+              const watcher: FSWatcher | undefined = await createWatcher(
+                     this,
+                     options,
               );
 
-              watcher.on("error", (error: Error) => {
-                     self._logger?.error(
-                            typeof error === "string" ? error : error?.message,
-                     );
-                     /** @see unwatch file/folder if an error occured */
-                     self.unwatch(fileOrDirectory);
-              });
-
-              /** Add watcher to @see Collection */
-              self._watchers.set(fileOrDirectory, { watcher, root });
+              if (watcher) {
+                     self._watchers.set(fileOrDirectory, { watcher, root });
+              }
        }
 
        /**

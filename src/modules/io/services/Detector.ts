@@ -18,6 +18,11 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { FileWatchOptions } from "../../../types/FileWatchOptions";
+import { WatcherRef } from "../../../types/WatcherRef";
+import { Watcher } from "../../../types/FileWatcher";
+import { LogService } from "@geeko/log";
+import { IEventEmitter } from "tseep";
+import { FSWatcher } from "node:fs";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
@@ -26,9 +31,14 @@ import { FileWatchOptions } from "../../../types/FileWatchOptions";
  *
  * @public
  */
-export interface Detector {
-       root(): string;
-       event(name: string, data: any): void;
+export interface Detector extends IEventEmitter {
+       /**
+        * Initial root directory or file path being observed
+        *
+        * @public
+        * @returns {String}
+        */
+       root(): string | undefined;
 
        /**
         * Helper for retrieving the relative path of an object to the @see this.root
@@ -40,13 +50,37 @@ export interface Detector {
        relative(path: string): string;
 
        /**
+        * Logger reference
+        *
+        * @public
+        * @returns {LogService}
+        */
+       logger(): LogService | undefined;
+
+       /**
+        * Filesystem watcher interface
+        *
+        * @public
+        * @returns {Watcher<FSWatcher> | undefined}
+        */
+       watcher(): Watcher<FSWatcher> | undefined;
+
+       /**
+        * Map of tracked watched files/directories
+        *
+        * @public
+        * @returns {Map<string, WatcherRef>}
+        */
+       watchers(): Map<string, WatcherRef>;
+
+       /**
         * Gets the absolute root from a given path, relative to the @see this._root
         *
         * @public
         * @param {String} path
         * @returns {String}
         */
-       absolute(path: string): string;
+       absolute(path: string): string | undefined;
 
        /**
         * Initializes the @see FSWatcher & emits file events based on the IO changes
@@ -55,7 +89,7 @@ export interface Detector {
         * @param {FileWatchOptions} options
         * @returns {Promise<void>}
         */
-       watch(options: FileWatchOptions): Promise<void>;3
+       watch(options: FileWatchOptions): Promise<void>;
 
        /**
         * Removes the specified path from the watch list - closing the @see FSWatcher
