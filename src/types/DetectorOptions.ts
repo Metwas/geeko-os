@@ -17,6 +17,7 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
+import { ThreadCount } from "./ThreadPoolOptions";
 import { LogService } from "@geeko/log";
 import { Watcher } from "./FileWatcher";
 import { FSWatcher } from "node:fs";
@@ -30,6 +31,6 @@ import { FSWatcher } from "node:fs";
  */
 export type DetectorOptions = {
        watcher?: Watcher<FSWatcher>;
-       workers?: boolean | number;
+       workers?: ThreadCount;
        logger?: LogService;
 };

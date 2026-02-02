@@ -20,8 +20,8 @@
 import { FileWatchOptions } from "../../../types/FileWatchOptions";
 import { WatcherRef } from "../../../types/WatcherRef";
 import { Watcher } from "../../../types/FileWatcher";
+import { IEvents } from "../../threads/IEvent";
 import { LogService } from "@geeko/log";
-import { IEventEmitter } from "tseep";
 import { FSWatcher } from "node:fs";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
@@ -31,7 +31,7 @@ import { FSWatcher } from "node:fs";
  *
  * @public
  */
-export interface Detector extends IEventEmitter {
+export interface Detector extends IEvents {
        /**
         * Initial root directory or file path being observed
         *

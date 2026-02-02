@@ -18,10 +18,10 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 const {
-       FsDetector,
        FILE_CREATE_EVENT,
        FILE_CHANGE_EVENT,
        FILE_DELETE_EVENT,
+       FsDetector,
 } = require("../../dist/main");
 
 const { LogService } = require("@geeko/log");
@@ -31,6 +31,7 @@ const { resolve } = require("node:path");
 
 const detector = new FsDetector({
        logger: new LogService(),
+       workers: 4,
 });
 
 detector.on(FILE_CREATE_EVENT, (options) => {
@@ -48,5 +49,14 @@ detector.on(FILE_DELETE_EVENT, (options) => {
 detector.watch({
        path: resolve(__dirname, "./"),
        recursive: true,
-       level: 2,
+});
+
+detector.watch({
+       path: resolve(__dirname, "../launcher/"),
+       recursive: false,
+});
+
+detector.watch({
+       path: resolve(__dirname, "../threads/workers/"),
+       recursive: false,
 });

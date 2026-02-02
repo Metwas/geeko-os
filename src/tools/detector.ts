@@ -42,11 +42,12 @@ import { sep } from "node:path";
  * @param {FileWatchOptions} options
  * @returns {Promise<FSWatcher | undefined>}
  */
-export const createWatcher = async (
+export const watcher = async (
        detector: Detector,
        options: FileWatchOptions,
 ): Promise<FSWatcher | undefined> => {
        const self: Detector = detector;
+
        const watcher: Watcher<FSWatcher> | undefined = self.watcher();
        const watchers: Map<string, WatcherRef> = self.watchers();
        const logger: LogService | undefined = self.logger();
@@ -94,7 +95,7 @@ export const createWatcher = async (
                                    recursive: recursive,
                                    level: level + 1,
                                    path: fileName,
-                                   root: fileName,
+                                   root: root,
                             });
                      } catch (error) {
                             logger?.error(
@@ -127,7 +128,6 @@ export const createWatcher = async (
               fileOrDirectory,
               async (eventType: string, fileName: string): Promise<void> => {
                      try {
-                            logger?.info(eventType);
                             const fullName: string = `${fileOrDirectory}/${fileName}`;
                             const canRead: FileHandle = await open(
                                    fullName,
@@ -209,6 +209,7 @@ export const createWatcher = async (
                                                         self.watch({
                                                                recursive: recursive,
                                                                path: fullName,
+                                                               level: level,
                                                                root: root,
                                                         });
 
@@ -237,11 +238,6 @@ export const createWatcher = async (
                                                                       if (
                                                                              stats.isDirectory()
                                                                       ) {
-                                                                             console.log(
-                                                                                    "Watching: ",
-                                                                                    root,
-                                                                                    file,
-                                                                             );
                                                                              self.watch(
                                                                                     {
                                                                                            recursive: recursive,

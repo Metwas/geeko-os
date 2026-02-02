@@ -18,8 +18,15 @@
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 import { WorkerOptions } from "node:worker_threads";
+import { IEvents } from "../modules/threads/IEvent";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+/**
+ * @public
+ * @type {Number | "auto"}
+ */
+export type ThreadCount = number | "auto";
 
 /**
  * @see ThreadPool constructor options
@@ -31,9 +38,9 @@ export type ThreadPoolOptions = {
         * Number of threads to manage
         *
         * @public
-        * @type {Number | "auto"}
+        * @type {ThreadCount}
         */
-       size?: number | "auto";
+       size?: ThreadCount;
 
        /**
         * Thread execution file path
@@ -47,15 +54,23 @@ export type ThreadPoolOptions = {
         * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
         *
         * @public
-        * @type {Boolean}
+        * @type {Boolean | undefined}
         */
        persistent?: boolean;
+
+       /**
+        * Event bridge or proxy
+        *
+        * @public
+        * @type {IEvents | undefined}
+        */
+       bridge?: IEvents | undefined;
 
        /**
         * Max number of tasks in the queue backlog
         *
         * @public
-        * @type {Number}
+        * @type {Number | undefined}
         */
        maxQueueSize?: number;
 
@@ -63,7 +78,7 @@ export type ThreadPoolOptions = {
         * @see Worker based options
         *
         * @public
-        * @type {WorkerOptions}
+        * @type {WorkerOptions | undefined}
         */
        workerOptions?: WorkerOptions;
 };

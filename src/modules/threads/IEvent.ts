@@ -17,13 +17,28 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-const { parentPort } = require("node:worker_threads");
-const { Ok } = require("../../../dist/types/Result");
-const { sleep } = require("@geeko/tasks");
+import { DefaultEventMap } from "tseep";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-parentPort.on("message", async (data) => {
-       await sleep(500);
-       parentPort.postMessage(Ok(data));
-});
+/**
+ * Core events interface
+ *
+ * @public
+ */
+export interface IEvents {
+       emit<EventKey extends string>(
+              event: EventKey,
+              ...args: Parameters<DefaultEventMap[EventKey]>
+       ): boolean;
+
+       on<EventKey extends string>(
+              event: EventKey,
+              listener: DefaultEventMap[EventKey],
+       ): this;
+
+       once<EventKey extends string>(
+              event: EventKey,
+              listener: DefaultEventMap[EventKey],
+       ): this;
+}
