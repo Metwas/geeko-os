@@ -24,7 +24,7 @@ const {
        FsDetector,
 } = require("../../dist/main");
 
-const { LogService } = require("@geeko/log");
+const { LogService, pretty } = require("@geeko/log");
 const { resolve } = require("node:path");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
@@ -39,15 +39,15 @@ const detector = new FsDetector({
 });
 
 detector.on(FILE_CREATE_EVENT, (options) => {
-       logger.verbose("Created: ", options);
+       logger.verbose("Created: " + pretty(options));
 });
 
 detector.on(FILE_CHANGE_EVENT, (options) => {
-       logger.verbose("Changed: ", options);
+       logger.verbose("Changed: " + pretty(options));
 });
 
 detector.on(FILE_DELETE_EVENT, (options) => {
-       logger.warn("Deleted: ", options);
+       logger.warn("Deleted: " + pretty(options));
 });
 
 detector.watch({
