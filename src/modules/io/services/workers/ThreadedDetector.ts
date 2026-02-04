@@ -218,7 +218,7 @@ export class ThreadedDetector implements Detector {
               return (
                      parentPort?.postMessage({
                             e: event,
-                            v: args,
+                            v: Array.isArray(args) ? args[0] : args,
                      }) || false
               );
        }
