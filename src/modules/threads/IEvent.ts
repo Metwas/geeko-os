@@ -27,16 +27,34 @@ import { DefaultEventMap } from "tseep";
  * @public
  */
 export interface IEvents {
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {Parameters<DefaultEventMap[EventKey]>} args
+        * @returns {Boolean}
+        */
        emit<EventKey extends string>(
               event: EventKey,
               ...args: Parameters<DefaultEventMap[EventKey]>
        ): boolean;
 
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
        on<EventKey extends string>(
               event: EventKey,
               listener: DefaultEventMap[EventKey],
        ): this;
 
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
        once<EventKey extends string>(
               event: EventKey,
               listener: DefaultEventMap[EventKey],

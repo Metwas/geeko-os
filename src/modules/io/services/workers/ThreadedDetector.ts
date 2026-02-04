@@ -205,6 +205,12 @@ export class ThreadedDetector implements Detector {
               });
        }
 
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {Parameters<DefaultEventMap[EventKey]>} args
+        * @returns {Boolean}
+        */
        public emit<EventKey extends string>(
               event: EventKey,
               ...args: Parameters<DefaultEventMap[EventKey]>
@@ -217,6 +223,12 @@ export class ThreadedDetector implements Detector {
               );
        }
 
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
        public on<EventKey extends string>(
               event: EventKey,
               listener: DefaultEventMap[EventKey],
@@ -228,6 +240,12 @@ export class ThreadedDetector implements Detector {
               return this;
        }
 
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
        public once<EventKey extends string>(
               event: EventKey,
               listener: DefaultEventMap[EventKey],

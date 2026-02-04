@@ -29,21 +29,25 @@ const { resolve } = require("node:path");
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
+const logger = new LogService({
+       title: "Fs Detector Test",
+});
+
 const detector = new FsDetector({
-       logger: new LogService(),
+       logger: logger,
        workers: 4,
 });
 
 detector.on(FILE_CREATE_EVENT, (options) => {
-       console.log("Created: ", options);
+       logger.verbose("Created: ", options);
 });
 
 detector.on(FILE_CHANGE_EVENT, (options) => {
-       console.log("Changed: ", options);
+       logger.verbose("Changed: ", options);
 });
 
 detector.on(FILE_DELETE_EVENT, (options) => {
-       console.log("Deleted: ", options);
+       logger.warn("Deleted: ", options);
 });
 
 detector.watch({

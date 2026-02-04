@@ -17,15 +17,22 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { FileWatchOptions } from "../../../../types/FileWatchOptions";
 import { ThreadedDetector } from "./ThreadedDetector";
+import { Event } from "../../../../types/Event";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 const detector: ThreadedDetector = new ThreadedDetector();
 
-detector.on("message", (options: FileWatchOptions): any => {
-       if (!(options as any)?.e) {
-              detector.watch(options);
+detector.on("message", (event: Event<string>): any => {
+       const type: string = event?.e;
+
+       if (typeof type === "string") {
+              switch (type) {
+                     case "watch":
+                            detector.watch(event.v);
+                     case "unwatch":
+                            detector.unwatch(event.v);
+              }
        }
 });
