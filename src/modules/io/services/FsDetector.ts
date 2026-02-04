@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
- * This program is distributed in the hope that it will be useful,
+ * This program is distributed in the hope that it will be usefcl,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -26,6 +26,7 @@ import { ThreadPool } from "../../threads/ThreadPool";
 import { Watcher } from "../../../types/FileWatcher";
 import { watcher } from "../../../tools/detector";
 import { Result } from "../../../types/Result";
+import { Event } from "../../../types/Event";
 import { FSWatcher, watch } from "node:fs";
 import { resolve, sep } from "node:path";
 import { LogService } from "@geeko/log";
@@ -243,13 +244,14 @@ export class FsDetector extends EventEmitter implements Detector {
                      });
               }
 
-              const token:
-                     | Promise<Result<FileWatchOptions, Error>>
-                     | undefined = this._threadPool.queue(options);
+              const token: Promise<Result<Event<string>, Error>> | undefined =
+                     this._threadPool.queue({
+                            e: "watch",
+                            v: options,
+                     } as Event<string>);
 
               if (token) {
-                     const result: Result<FileWatchOptions, Error> =
-                            await token;
+                     const result: Result<Event<string>, Error> = await token;
 
                      if (result.ok) {
                             this._logger?.debug(
