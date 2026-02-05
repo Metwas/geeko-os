@@ -23,7 +23,9 @@ import { TrackedTask } from "../../types/TrackedTask";
 import { Err, Ok, Result } from "../../types/Result";
 import { PromiseToken } from "@geeko/tasks";
 import { Thread } from "../../types/Thread";
+import { Event } from "../../types/Event";
 import { LogService } from "@geeko/log";
+import { IEvents } from "./IEvent";
 import { cpus } from "node:os";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
@@ -45,6 +47,7 @@ export class ThreadPool {
 
               this._max = options.maxQueueSize ?? ThreadPool.MAX_QUEUE_SIZE;
               this._size = this._csize(options.size);
+              this._bridge = options.bridge;
               this._file = options.file;
 
               this._logger = logger;
@@ -98,6 +101,14 @@ export class ThreadPool {
         * @type {Number}
         */
        private _max: number;
+
+       /**
+        * Event bridge or proxy
+        *
+        * @private
+        * @type {IEvents | undefined}
+        */
+       private _bridge: IEvents | undefined = void 0;
 
        /**
         * Flag to ensure thread count is maintained if one or more @see Worker(s) shutdown
@@ -288,7 +299,6 @@ export class ThreadPool {
               const thread: Thread | undefined = this._thread();
 
               if (!thread) {
-                     // no idle worker
                      return void 0;
               }
 
@@ -375,25 +385,42 @@ export class ThreadPool {
         * @param {Number} id
         * @param {Any} data
         */
-       private _message(worker: Worker, id: number, data?: any): void {
+       private _message(
+              worker: Worker,
+              id: number,
+              data: Result<any, Error> | Event<string>,
+       ): void {
               const thread: Thread | undefined = this._threads.get(id);
 
               if (!thread) {
                      return void 0;
               }
 
-              thread.idle = true;
+              if ((data as Event<string>)?.e) {
+                     if (this._bridge) {
+                            this._bridge.emit(
+                                   (data as Event<string>).e,
+                                   (data as Event<string>).v,
+                            );
+                     }
+              } else {
+                     thread.idle = true;
 
-              const token: PromiseToken<Result<any, Error>> | undefined =
-                     this._resolvers.get(id);
+                     const token: PromiseToken<Result<any, Error>> | undefined =
+                            this._resolvers.get(id);
 
-              if (token) {
-                     token.resolve(Ok(data));
+                     if (token) {
+                            token.resolve(data as Result<any, Error>);
+                     }
+
+                     this._resolvers.delete(id);
               }
 
-              this._resolvers.delete(id);
-
-              if (this._auto && this._size > this._queue.length + 1) {
+              if (
+                     !this._persistent &&
+                     this._auto &&
+                     this._size > this._queue.length + 1
+              ) {
                      thread.worker.terminate();
               }
 

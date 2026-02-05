@@ -5,7 +5,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; version 2 of the License.
  *
- * This program is distributed in the hope that it will be usefcl,
+ * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
@@ -17,39 +17,33 @@
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
-import { FileWatchOptions } from "../../../types/FileWatchOptions";
-import { FILE_UNWATCH_EVENT } from "../../../global/file.events";
-import { DetectorOptions } from "../../../types/DetectorOptions";
-import { ThreadCount } from "../../../types/ThreadPoolOptions";
-import { WatcherRef } from "../../../types/WatcherRef";
-import { ThreadPool } from "../../threads/ThreadPool";
-import { Watcher } from "../../../types/FileWatcher";
-import { watcher } from "../../../tools/detector";
-import { Result } from "../../../types/Result";
-import { Event } from "../../../types/Event";
+import { FileWatchOptions } from "../../../../types/FileWatchOptions";
+import { FILE_UNWATCH_EVENT } from "../../../../global/file.events";
+import { DetectorOptions } from "../../../../types/DetectorOptions";
+import { Detector } from "../../../../modules/io/services/Detector";
+import { WatcherRef } from "../../../../types/WatcherRef";
+import { Watcher } from "../../../../types/FileWatcher";
+import { watcher } from "../../../../tools/detector";
+import { parentPort } from "node:worker_threads";
 import { FSWatcher, watch } from "node:fs";
-import { resolve, sep } from "node:path";
+import { DefaultEventMap } from "tseep";
 import { LogService } from "@geeko/log";
-import { Detector } from "./Detector";
-import { EventEmitter } from "tseep";
+import { sep } from "node:path";
 
 /**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
 
 /**
- * File detector service
+ * IPC event-based file detector interface
  *
  * @public
  */
-export class FsDetector extends EventEmitter implements Detector {
+export class ThreadedDetector implements Detector {
        /**
         * @public
         * @param {DetectorOptions} options
         */
        public constructor(options?: DetectorOptions) {
-              super();
-
               this._watcher = options?.watcher ?? (watch as any);
-              this._threadCount = options?.workers;
               this._logger = options?.logger;
        }
 
@@ -76,22 +70,6 @@ export class FsDetector extends EventEmitter implements Detector {
         * @type {String}
         */
        private _root: string | undefined = void 0;
-
-       /**
-        * Number of configured workers for a given @see ThreadPool
-        *
-        * @private
-        * @type {ThreadCount | undefined}
-        */
-       private _threadCount: ThreadCount | undefined = void 0;
-
-       /**
-        * @see ThreadPool reference
-        *
-        * @private
-        * @type {ThreadPool | undefined}
-        */
-       private _threadPool: ThreadPool | undefined = void 0;
 
        /**
         * Log provider
@@ -142,63 +120,6 @@ export class FsDetector extends EventEmitter implements Detector {
        }
 
        /**
-        * Initializes the @see FSWatcher & emits file events based on the IO changes
-        *
-        * @public
-        * @param {FileWatchOptions} options
-        * @returns {Promise<void>}
-        */
-       public async watch(options: FileWatchOptions): Promise<void> {
-              const self: FsDetector = this;
-
-              if (!self._watcher) {
-                     return void 0;
-              }
-
-              if (typeof options === "string") {
-                     options = {
-                            path: options,
-                            root: "",
-                     };
-              }
-
-              /** @TODO push to @see Threadpool if configured - create file watch copy for master & worker */
-              if (self._threadCount) {
-                     return await this._thread(options);
-              }
-
-              const _watcher: FSWatcher | undefined = await watcher(
-                     this,
-                     options,
-              );
-       }
-
-       /**
-        * Removes the specified path from the watch list - closing the @see FSWatcher
-        *
-        * @public
-        * @param {String} path
-        */
-       public unwatch(path: string): void {
-              if (this._watchers.has(path) === true) {
-                     const watchers: WatcherRef | undefined =
-                            this._watchers.get(path);
-
-                     if (!watchers) {
-                            return void 0;
-                     }
-
-                     watchers.watcher.close();
-                     /** Finally remove from watch list */
-                     this._watchers.delete(path);
-              }
-
-              this.emit(FILE_UNWATCH_EVENT, {
-                     path: path,
-              });
-       }
-
-       /**
         * Gets the absolute root from a given path, relative to the @see this._root
         *
         * @public
@@ -229,39 +150,110 @@ export class FsDetector extends EventEmitter implements Detector {
        }
 
        /**
-        * Initializes and queues the next watch via the @see ThreadPool
+        * Initializes the @see FSWatcher & emits file events based on the IO changes
         *
-        * @private
+        * @public
         * @param {FileWatchOptions} options
+        * @returns {Promise<void>}
         */
-       private async _thread(options: FileWatchOptions): Promise<void> {
-              if (!this._threadPool) {
-                     this._threadPool = new ThreadPool({
-                            file: resolve(__dirname, "./workers/detector.js"),
-                            size: this._threadCount,
-                            persistent: true,
-                            bridge: this,
+       public async watch(options: FileWatchOptions): Promise<void> {
+              if (!this._watcher) {
+                     return void 0;
+              }
+
+              if (typeof options === "string") {
+                     options = {
+                            path: options,
+                            root: "",
+                     };
+              }
+
+              const _watcher: FSWatcher | undefined = await watcher(
+                     this,
+                     options,
+              );
+
+              if (_watcher) {
+                     parentPort?.postMessage({
+                            ok: true,
                      });
               }
+       }
 
-              const token: Promise<Result<Event<string>, Error>> | undefined =
-                     this._threadPool.queue({
-                            e: "watch",
-                            v: options,
-                     } as Event<string>);
+       /**
+        * Removes the specified path from the watch list - closing the @see FSWatcher
+        *
+        * @public
+        * @param {String} path
+        */
+       public unwatch(path: string): void {
+              if (this._watchers.has(path) === true) {
+                     const watchers: WatcherRef | undefined =
+                            this._watchers.get(path);
 
-              if (token) {
-                     const result: Result<Event<string>, Error> = await token;
-
-                     if (result.ok) {
-                            this._logger?.debug(
-                                   "[Worker] watching path: " + options.path,
-                            );
-                     } else {
-                            this._logger?.error("watch error: " + result.error);
+                     if (!watchers) {
+                            return void 0;
                      }
+
+                     watchers.watcher.close();
+                     /** Finally remove from watch list */
+                     this._watchers.delete(path);
               }
 
-              return void 0;
+              this.emit(FILE_UNWATCH_EVENT, {
+                     path: path,
+              });
+       }
+
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {Parameters<DefaultEventMap[EventKey]>} args
+        * @returns {Boolean}
+        */
+       public emit<EventKey extends string>(
+              event: EventKey,
+              ...args: Parameters<DefaultEventMap[EventKey]>
+       ): boolean {
+              return (
+                     parentPort?.postMessage({
+                            e: event,
+                            v: Array.isArray(args) ? args[0] : args,
+                     }) || false
+              );
+       }
+
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
+       public on<EventKey extends string>(
+              event: EventKey,
+              listener: DefaultEventMap[EventKey],
+       ): this {
+              if (parentPort) {
+                     parentPort.on(event, listener);
+              }
+
+              return this;
+       }
+
+       /**
+        * @public
+        * @param {EventKey} event
+        * @param {DefaultEventMap[EventKey]} listener
+        * @returns {Detector}
+        */
+       public once<EventKey extends string>(
+              event: EventKey,
+              listener: DefaultEventMap[EventKey],
+       ): this {
+              if (parentPort) {
+                     parentPort.once(event, listener);
+              }
+
+              return this;
        }
 }

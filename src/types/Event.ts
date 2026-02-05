@@ -15,15 +15,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-const { parentPort } = require("node:worker_threads");
-const { Ok } = require("../../../dist/types/Result");
-const { sleep } = require("@geeko/tasks");
-
-/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
-
-parentPort.on("message", async (data) => {
-       await sleep(500);
-       parentPort.postMessage(Ok(data));
-});
+/**
+ * Event map
+ *
+ * @public
+ */
+export type Event<E extends string> = {
+       e: E;
+       v: any;
+};

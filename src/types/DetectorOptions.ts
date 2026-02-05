@@ -15,11 +15,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/**_-_-_-_-_-_-_-_-_-_-_-_-_- Imports _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
+import { ThreadCount } from "./ThreadPoolOptions";
+import { LogService } from "@geeko/log";
+import { Watcher } from "./FileWatcher";
+import { FSWatcher } from "node:fs";
+
+/**_-_-_-_-_-_-_-_-_-_-_-_-_-          _-_-_-_-_-_-_-_-_-_-_-_-_-*/
+
 /**
  * @see FsDetector construction options
  *
  * @public
  */
 export type DetectorOptions = {
-       workers?: boolean | number;
+       watcher?: Watcher<FSWatcher>;
+       workers?: ThreadCount;
+       logger?: LogService;
 };
