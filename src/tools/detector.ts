@@ -98,11 +98,7 @@ export const watcher = async (
                                    root: root,
                             });
                      } catch (error) {
-                            logger?.error(
-                                   typeof error === "string"
-                                          ? error
-                                          : (error as any)?.message,
-                            );
+                            logger?.error(error);
                      }
               }
        }
@@ -268,13 +264,7 @@ export const watcher = async (
                                                                }
                                                         } catch (error) {
                                                                logger?.error(
-                                                                      typeof error ===
-                                                                             "string"
-                                                                             ? error
-                                                                             : (
-                                                                                      error as any
-                                                                               )
-                                                                                      ?.message,
+                                                                      error,
                                                                );
                                                         }
                                                  }
@@ -333,7 +323,7 @@ export const watcher = async (
        );
 
        _watcher.on("error", (error: Error) => {
-              logger?.error(typeof error === "string" ? error : error?.message);
+              logger?.error(error);
               /** @see unwatch file/folder if an error occured */
               self.unwatch(fileOrDirectory);
        });

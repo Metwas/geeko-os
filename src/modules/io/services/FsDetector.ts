@@ -258,7 +258,7 @@ export class FsDetector extends EventEmitter implements Detector {
                                    "[Worker] watching path: " + options.path,
                             );
                      } else {
-                            this._logger?.error("watch error: " + result.error);
+                            this._logger?.error("watch error: " + result.value);
                      }
               }
 
