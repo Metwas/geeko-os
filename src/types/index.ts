@@ -35,4 +35,5 @@ export * from "./FileWatcher";
 export * from "./Application";
 export * from "./FileInfo";
 export * from "./Platform";
+export * from "./Result";
 export * from "./token";

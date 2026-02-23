@@ -27,7 +27,7 @@ type Ok<T> = { ok: true; value: T };
  *
  * @public
  */
-type Err<E> = { ok: false; error: E };
+type Err<E> = { ok: false; value: E };
 
 /**
  * Type defining only two output conditions, either @see Ok OR @see Err
@@ -45,7 +45,7 @@ export type Result<T, E> = Ok<T> | Err<E>;
  */
 export const Ok = <T>(value: T): Result<T, never> => ({
        ok: true,
-       value,
+       value: value,
 });
 
 /**
@@ -57,5 +57,5 @@ export const Ok = <T>(value: T): Result<T, never> => ({
  */
 export const Err = <E>(error: E): Result<never, E> => ({
        ok: false,
-       error,
+       value: error,
 });
